@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
-import { colors } from "@/shared/theme";
+import { colors, typography } from "@/shared/theme";
 
 import { OnboardingSlide } from "../model/types";
 
@@ -14,9 +14,9 @@ function OnboardingSlideCardComponent({
   slide,
   slideWidth,
 }: OnboardingSlideCardProps) {
-  const scale = Math.min(1, slideWidth / slide.imageWidth);
-  const imageWidth = slide.imageWidth * scale;
-  const imageHeight = slide.imageHeight * scale;
+  const scale = Math.min(1, slideWidth / slide.imageSize.width);
+  const imageWidth = slide.imageSize.width * scale;
+  const imageHeight = slide.imageSize.height * scale;
 
   return (
     <View style={[styles.slide, { width: slideWidth }]}>
@@ -63,7 +63,8 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 38,
     letterSpacing: -0.4,
-    fontWeight: "700",
+    fontFamily: typography.manropeRegular,
+    fontWeight: "400",
   },
   subtitle: {
     marginTop: 16,
@@ -71,6 +72,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     lineHeight: 23,
+    fontFamily: typography.manropeRegular,
     fontWeight: "400",
   },
 });

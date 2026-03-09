@@ -16,7 +16,7 @@ export function useOnboardingCarousel({
   const previousSlideWidthRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const lastSlideIndex = totalSlides - 1;
+  const lastSlideIndex = Math.max(totalSlides - 1, 0);
   const isFirstSlide = activeIndex === 0;
   const isLastSlide = activeIndex === lastSlideIndex;
 
@@ -55,12 +55,12 @@ export function useOnboardingCarousel({
   );
 
   const goToNextSlide = useCallback(() => {
-    if (isLastSlide) {
+    if (isLastSlide || totalSlides <= 1) {
       return;
     }
 
     goToSlide(activeIndex + 1);
-  }, [activeIndex, goToSlide, isLastSlide]);
+  }, [activeIndex, goToSlide, isLastSlide, totalSlides]);
 
   const goToPreviousSlide = useCallback(() => {
     if (isFirstSlide) {
@@ -85,7 +85,5 @@ export function useOnboardingCarousel({
     goToNextSlide,
     goToPreviousSlide,
     handleScrollEnd,
-    isFirstSlide,
-    isLastSlide,
   };
 }

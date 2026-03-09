@@ -3,7 +3,8 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors, layout } from "@/shared/theme";
+import { routes } from "@/shared/navigation/routes";
+import { colors, layout, typography } from "@/shared/theme";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function HomeScreen() {
 
           <Pressable
             style={styles.secondaryButton}
-            onPress={() => router.replace("/")}
+            onPress={() => router.replace(routes.onboarding)}
           >
             <Text style={styles.secondaryButtonText}>Open onboarding again</Text>
           </Pressable>
@@ -46,7 +47,8 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 36,
     lineHeight: 42,
-    fontWeight: "700",
+    fontFamily: typography.manropeRegular,
+    fontWeight: "400",
   },
   subtitle: {
     marginTop: 16,
@@ -54,6 +56,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     lineHeight: 24,
+    fontFamily: typography.manropeRegular,
+    fontWeight: "400",
   },
   secondaryButton: {
     marginTop: 32,
@@ -65,6 +69,7 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: colors.textPrimary,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.manropeRegular,
+    fontWeight: "400",
   },
 });
