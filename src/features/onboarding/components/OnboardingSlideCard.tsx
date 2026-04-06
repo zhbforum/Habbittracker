@@ -1,7 +1,8 @@
 import { memo } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 
-import { colors, typography } from "@/shared/theme";
+import { colors } from "@/shared/theme";
+import { AppText } from "@/shared/ui";
 
 import { OnboardingSlide } from "../model/types";
 
@@ -29,8 +30,8 @@ function OnboardingSlideCardComponent({
       </View>
 
       <View style={styles.textSection}>
-        <Text style={styles.title}>{slide.title}</Text>
-        <Text style={styles.subtitle}>{slide.subtitle}</Text>
+        <AppText style={styles.title}>{slide.title}</AppText>
+        <AppText style={styles.subtitle}>{slide.subtitle}</AppText>
       </View>
     </View>
   );
@@ -63,8 +64,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 38,
     letterSpacing: -0.4,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
   },
   subtitle: {
     marginTop: 16,
@@ -72,7 +71,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     lineHeight: 23,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
   },
 });

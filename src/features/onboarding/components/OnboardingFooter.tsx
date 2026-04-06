@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, typography } from "@/shared/theme";
+import { colors } from "@/shared/theme";
+import { AppText } from "@/shared/ui";
 import type {
   OnboardingPrimaryAction,
   OnboardingSecondaryAction,
@@ -29,9 +30,9 @@ export function OnboardingFooter({
     <View style={styles.bottomSection}>
       <Pressable style={styles.primaryButton} onPress={onPrimaryPress}>
         <View style={styles.primaryButtonContent}>
-          <Text style={styles.primaryButtonText}>{primaryAction.label}</Text>
+          <AppText style={styles.primaryButtonText}>{primaryAction.label}</AppText>
           {primaryAction.showArrow && (
-            <Text style={styles.primaryButtonArrow}>{">"}</Text>
+            <AppText style={styles.primaryButtonArrow}>{">"}</AppText>
           )}
         </View>
       </Pressable>
@@ -47,7 +48,7 @@ export function OnboardingFooter({
           style={styles.secondaryActionButton}
           onPress={onSecondaryActionPress}
         >
-          <Text style={styles.secondaryActionText}>{secondaryAction.label}</Text>
+          <AppText style={styles.secondaryActionText}>{secondaryAction.label}</AppText>
         </Pressable>
       )}
     </View>
@@ -80,15 +81,11 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 20,
     lineHeight: 28,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
   },
   primaryButtonArrow: {
     color: colors.textPrimary,
     fontSize: 20,
     lineHeight: 28,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
   },
   secondaryActionButton: {
     marginTop: 20,
@@ -99,7 +96,5 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 16,
     lineHeight: 22,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
   },
 });

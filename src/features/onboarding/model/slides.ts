@@ -37,7 +37,7 @@ export const onboardingSlides: readonly OnboardingSlide[] = [
     },
     topBar: {
       showSkip: true,
-      backButtonVariant: "filled",
+      backButtonVariant: "plain",
     },
     footer: {
       primaryAction: {
@@ -64,10 +64,6 @@ export const onboardingSlides: readonly OnboardingSlide[] = [
     footer: {
       primaryAction: {
         label: "Start Tracking",
-        kind: "finish",
-      },
-      secondaryAction: {
-        label: "Skip for now",
         kind: "finish",
       },
     },
