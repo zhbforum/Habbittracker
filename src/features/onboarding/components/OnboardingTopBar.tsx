@@ -1,7 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ArrowLeft } from "lucide-react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, typography } from "@/shared/theme";
+import { colors } from "@/shared/theme";
+import { AppText } from "@/shared/ui";
 import type { OnboardingBackButtonVariant } from "../model/types";
 
 type OnboardingTopBarProps = {
@@ -29,7 +30,7 @@ export function OnboardingTopBar({
           style={[styles.backButton, isBackButtonPlain && styles.backButtonPlain]}
           onPress={onBackPress}
         >
-          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+          <ArrowLeft size={24} color={colors.textPrimary} strokeWidth={2.2} />
         </Pressable>
       )}
 
@@ -37,7 +38,7 @@ export function OnboardingTopBar({
 
       {showSkip ? (
         <Pressable style={styles.skipButton} onPress={onSkipPress}>
-          <Text style={styles.skipText}>Skip</Text>
+          <AppText style={styles.skipText}>Skip</AppText>
         </Pressable>
       ) : (
         <View style={styles.topBarSpacer} />
@@ -82,7 +83,5 @@ const styles = StyleSheet.create({
   skipText: {
     color: colors.textMuted,
     fontSize: 18,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
   },
 });
