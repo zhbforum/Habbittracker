@@ -14,6 +14,7 @@ void SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const router = useRouter();
   const lastHandledUrlRef = useRef<string | null>(null);
+  const pendingUrlRef = useRef<string | null>(null);
 
   const [loaded, error] = useFonts({
     Manrope_400Regular,
@@ -27,14 +28,20 @@ export default function RootLayout() {
 
   const handleIncomingUrl = useCallback(
     async (url: string) => {
-      if (lastHandledUrlRef.current === url) {
+      if (lastHandledUrlRef.current === url || pendingUrlRef.current === url) {
         return;
       }
 
-      lastHandledUrlRef.current = url;
+      pendingUrlRef.current = url;
 
       try {
         const result = await resolveAuthRedirectUrl(url);
+
+        if (result.status === "ignored") {
+          return;
+        }
+
+        lastHandledUrlRef.current = url;
 
         if (result.status === "success") {
           router.replace(routes.home);
@@ -51,6 +58,10 @@ export default function RootLayout() {
             : "Unable to process auth link.";
 
         Alert.alert("Auth link error", fallbackMessage);
+      } finally {
+        if (pendingUrlRef.current === url) {
+          pendingUrlRef.current = null;
+        }
       }
     },
     [router],
