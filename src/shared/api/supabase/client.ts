@@ -1,5 +1,4 @@
 import "react-native-url-polyfill/auto";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   createClient,
   processLock,
@@ -11,8 +10,25 @@ import {
   getMissingSupabaseEnvKeys,
   supabaseRuntimeConfig,
 } from "@/shared/config/env";
+import { nativeSupabaseStorage } from "@/shared/api/supabase/storage";
 
 let supabaseClient: SupabaseClient | null = null;
+
+function createConfiguredSupabaseClient(): SupabaseClient {
+  return createClient(
+    supabaseRuntimeConfig.url as string,
+    supabaseRuntimeConfig.anonKey as string,
+    {
+      auth: {
+        ...(Platform.OS !== "web" ? { storage: nativeSupabaseStorage } : {}),
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+        lock: processLock,
+      },
+    },
+  );
+}
 
 export function getSupabaseClient(): SupabaseClient {
   if (supabaseClient) {
@@ -25,19 +41,7 @@ export function getSupabaseClient(): SupabaseClient {
     throw new Error(`Missing Supabase env vars: ${missingEnvKeys.join(", ")}`);
   }
 
-  supabaseClient = createClient(
-    supabaseRuntimeConfig.url as string,
-    supabaseRuntimeConfig.anonKey as string,
-    {
-      auth: {
-        ...(Platform.OS !== "web" ? { storage: AsyncStorage } : {}),
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
-        lock: processLock,
-      },
-    },
-  );
+  supabaseClient = createConfiguredSupabaseClient();
 
   return supabaseClient;
 }
