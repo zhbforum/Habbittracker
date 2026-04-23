@@ -1,7 +1,7 @@
-import type { EmailOtpType } from "@supabase/supabase-js";
+import type { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
 
 import { getSupabaseClient } from "@/shared/api/supabase/client";
-import { getAuthCallbackHost } from "@/shared/navigation/deepLinks";
+import { isAuthCallbackUrl } from "@/shared/navigation/deepLinks";
 
 type AuthRedirectResult =
   | {
@@ -12,18 +12,23 @@ type AuthRedirectResult =
       message: string;
     };
 
-const AUTH_CALLBACK_HOST = getAuthCallbackHost();
-const LEGACY_AUTH_CALLBACK_PATH = "auth/callback";
+const EMAIL_OTP_TYPES: ReadonlySet<EmailOtpType> = new Set([
+  "signup",
+  "invite",
+  "magiclink",
+  "recovery",
+  "email_change",
+  "email",
+]);
+
+const AUTH_ERROR_PARAM_KEYS = [
+  "error_description",
+  "error",
+  "ERROR_DESCRIPTION",
+] as const;
 
 function isEmailOtpType(type: string): type is EmailOtpType {
-  return [
-    "signup",
-    "invite",
-    "magiclink",
-    "recovery",
-    "email_change",
-    "email",
-  ].includes(type);
+  return EMAIL_OTP_TYPES.has(type as EmailOtpType);
 }
 
 function mergeUrlParams(url: string): URLSearchParams {
@@ -43,93 +48,138 @@ function mergeUrlParams(url: string): URLSearchParams {
 }
 
 function decodeAuthMessage(message: string): string {
-  return message.split("+").join(" ");
+  const normalizedMessage = message.split("+").join("%20");
+
+  try {
+    return decodeURIComponent(normalizedMessage);
+  } catch {
+    return message.split("+").join(" ");
+  }
+}
+
+function getFirstParam(
+  params: URLSearchParams,
+  keys: readonly string[],
+): string | null {
+  for (const key of keys) {
+    const value = params.get(key);
+
+    if (value) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function toErrorResult(message: string): AuthRedirectResult {
+  return {
+    status: "error",
+    message,
+  };
+}
+
+async function resolveSessionFromTokens(
+  supabase: SupabaseClient,
+  params: URLSearchParams,
+): Promise<AuthRedirectResult | null> {
+  const accessToken = params.get("access_token");
+  const refreshToken = params.get("refresh_token");
+
+  if (!accessToken || !refreshToken) {
+    return null;
+  }
+
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (error) {
+    return toErrorResult(error.message);
+  }
+
+  return {
+    status: "success",
+  };
+}
+
+async function resolveSessionFromCode(
+  supabase: SupabaseClient,
+  params: URLSearchParams,
+): Promise<AuthRedirectResult | null> {
+  const code = params.get("code");
+
+  if (!code) {
+    return null;
+  }
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    return toErrorResult(error.message);
+  }
+
+  return {
+    status: "success",
+  };
+}
+
+async function resolveSessionFromOtp(
+  supabase: SupabaseClient,
+  params: URLSearchParams,
+): Promise<AuthRedirectResult | null> {
+  const tokenHash = params.get("token_hash");
+  const otpType = params.get("type");
+
+  if (!tokenHash || !otpType || !isEmailOtpType(otpType)) {
+    return null;
+  }
+
+  const { error } = await supabase.auth.verifyOtp({
+    type: otpType,
+    token_hash: tokenHash,
+  });
+
+  if (error) {
+    return toErrorResult(error.message);
+  }
+
+  return {
+    status: "success",
+  };
 }
 
 export async function resolveAuthRedirectUrl(
   url: string,
 ): Promise<AuthRedirectResult> {
-  const isCurrentCallbackUrl = url.includes(`://${AUTH_CALLBACK_HOST}`);
-  const isLegacyCallbackUrl = url.includes(LEGACY_AUTH_CALLBACK_PATH);
-
-  if (!isCurrentCallbackUrl && !isLegacyCallbackUrl) {
+  if (!isAuthCallbackUrl(url)) {
     return {
       status: "ignored",
     };
   }
 
   const params = mergeUrlParams(url);
-  const supabase = getSupabaseClient();
-
-  const authError =
-    params.get("error_description") ??
-    params.get("error") ??
-    params.get("error_description".toUpperCase());
+  const authError = getFirstParam(params, AUTH_ERROR_PARAM_KEYS);
 
   if (authError) {
-    return {
-      status: "error",
-      message: decodeAuthMessage(authError),
-    };
+    return toErrorResult(decodeAuthMessage(authError));
   }
 
-  const accessToken = params.get("access_token");
-  const refreshToken = params.get("refresh_token");
+  const supabase = getSupabaseClient();
 
-  if (accessToken && refreshToken) {
-    const { error } = await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
+  const sessionResolvers = [
+    resolveSessionFromTokens,
+    resolveSessionFromCode,
+    resolveSessionFromOtp,
+  ] as const;
 
-    if (error) {
-      return {
-        status: "error",
-        message: error.message,
-      };
+  for (const resolveSession of sessionResolvers) {
+    const result = await resolveSession(supabase, params);
+
+    if (result) {
+      return result;
     }
-
-    return {
-      status: "success",
-    };
-  }
-
-  const code = params.get("code");
-
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (error) {
-      return {
-        status: "error",
-        message: error.message,
-      };
-    }
-
-    return {
-      status: "success",
-    };
-  }
-
-  const tokenHash = params.get("token_hash");
-  const otpType = params.get("type");
-
-  if (tokenHash && otpType && isEmailOtpType(otpType)) {
-    const { error } = await supabase.auth.verifyOtp({
-      type: otpType,
-      token_hash: tokenHash,
-    });
-
-    if (error) {
-      return {
-        status: "error",
-        message: error.message,
-      };
-    }
-
-    return {
-      status: "success",
-    };
   }
 
   return {
