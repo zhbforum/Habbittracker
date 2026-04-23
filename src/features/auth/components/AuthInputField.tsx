@@ -11,8 +11,6 @@ import {
 import { colors, typography } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
-const PASSWORD_MASK_SYMBOL = "\u2022";
-
 type AuthInputFieldProps = {
   label: string;
   value: string;
@@ -44,9 +42,6 @@ export function AuthInputField({
   autoComplete,
   textContentType,
 }: AuthInputFieldProps) {
-  const isPasswordMasked = secureTextEntry === true;
-  const maskedValue = PASSWORD_MASK_SYMBOL.repeat(value.length);
-
   return (
     <View style={styles.wrapper}>
       <View style={styles.labelRow}>
@@ -68,34 +63,22 @@ export function AuthInputField({
           <LeftIcon size={22} color={colors.textPlaceholder} strokeWidth={2} />
         ) : null}
 
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={[styles.input, isPasswordMasked && styles.hiddenInput]}
-            value={value}
-            onChangeText={onChangeText}
-            placeholder={placeholder}
-            placeholderTextColor={colors.textPlaceholder}
-            secureTextEntry={false}
-            keyboardType={keyboardType}
-            autoCapitalize={autoCapitalize}
-            autoComplete={autoComplete}
-            textContentType={textContentType}
-            contextMenuHidden={isPasswordMasked}
-            spellCheck={false}
-            autoCorrect={false}
-            cursorColor={colors.textPrimary}
-          />
-
-          {isPasswordMasked ? (
-            <View pointerEvents="none" style={styles.maskedOverlay}>
-              {value.length > 0 ? (
-                <AppText style={styles.maskedText}>{maskedValue}</AppText>
-              ) : (
-                <AppText style={styles.placeholderOverlayText}>{placeholder}</AppText>
-              )}
-            </View>
-          ) : null}
-        </View>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textPlaceholder}
+          secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          autoComplete={autoComplete}
+          textContentType={textContentType}
+          contextMenuHidden={secureTextEntry === true}
+          spellCheck={false}
+          autoCorrect={false}
+          cursorColor={colors.textPrimary}
+        />
 
         {rightAccessory ? (
           <View style={styles.rightAccessory}>{rightAccessory}</View>
@@ -140,40 +123,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: colors.textPrimary,
-    fontSize: 16,
-    lineHeight: 24,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
-    paddingVertical: 8,
-    includeFontPadding: false,
-  },
-  inputWrapper: {
-    flex: 1,
-    position: "relative",
-    justifyContent: "center",
-  },
-  hiddenInput: {
-    opacity: 0,
-  },
-  maskedOverlay: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    justifyContent: "center",
-  },
-  maskedText: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    lineHeight: 24,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
-    paddingVertical: 8,
-    includeFontPadding: false,
-  },
-  placeholderOverlayText: {
-    color: colors.textPlaceholder,
     fontSize: 16,
     lineHeight: 24,
     fontFamily: typography.manropeRegular,
