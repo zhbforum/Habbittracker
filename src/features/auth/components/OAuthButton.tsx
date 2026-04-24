@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
-import { colors } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
 type OAuthButtonProps = {
@@ -12,6 +13,9 @@ type OAuthButtonProps = {
 };
 
 export function OAuthButton({ label, icon, disabled, onPress }: OAuthButtonProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
+
   return (
     <Pressable
       style={[styles.button, disabled && styles.buttonDisabled]}
@@ -24,26 +28,28 @@ export function OAuthButton({ label, icon, disabled, onPress }: OAuthButtonProps
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    flex: 1,
-    minHeight: 56,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    backgroundColor: colors.background,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-  },
-  label: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  buttonDisabled: {
-    opacity: 0.65,
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    button: {
+      flex: 1,
+      minHeight: 56,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 14,
+      backgroundColor: colors.background,
+      paddingHorizontal: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+    },
+    label: {
+      color: colors.textPrimary,
+      fontSize: 16,
+      lineHeight: 22,
+    },
+    buttonDisabled: {
+      opacity: 0.65,
+    },
+  });
+}

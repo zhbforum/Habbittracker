@@ -1,7 +1,7 @@
 import { Eye, EyeOff } from "lucide-react-native";
 import { Pressable, StyleSheet } from "react-native";
 
-import { colors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 
 import { AuthInputField } from "./AuthInputField";
 import type { SignInFormValues } from "../model/types";
@@ -21,6 +21,8 @@ export function SignInForm({
   onPasswordChange,
   onTogglePasswordVisibility,
 }: SignInFormProps) {
+  const { colors } = useAppTheme();
+
   const passwordRightAccessory = (
     <Pressable
       style={styles.inputIconButton}
