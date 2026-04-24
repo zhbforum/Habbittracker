@@ -62,6 +62,12 @@
         {
           "configureAndroidBackup": true
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Habbittracker to access your photos so you can choose a profile avatar."
+        }
       ]
     ],
     "experiments": {

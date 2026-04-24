@@ -1,7 +1,8 @@
 import { Check, Eye, EyeOff, Lock, Mail, UserRound } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
 import { AuthInputField } from "./AuthInputField";
@@ -26,6 +27,9 @@ export function SignUpForm({
   onTogglePasswordVisibility,
   onToggleAcceptedTerms,
 }: SignUpFormProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
+
   const passwordRightAccessory = (
     <Pressable
       style={styles.inputIconButton}
@@ -94,42 +98,44 @@ export function SignUpForm({
   );
 }
 
-const styles = StyleSheet.create({
-  inputIconButton: {
-    width: 24,
-    height: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  termsRow: {
-    marginTop: 2,
-    marginBottom: 18,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  termsCheckbox: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  termsCheckboxActive: {
-    borderColor: colors.accentText,
-    backgroundColor: colors.accentSecondary,
-  },
-  termsText: {
-    flex: 1,
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-  },
-  termsLinkText: {
-    color: colors.textPrimary,
-    textDecorationLine: "underline",
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    inputIconButton: {
+      width: 24,
+      height: 24,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    termsRow: {
+      marginTop: 2,
+      marginBottom: 18,
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 12,
+    },
+    termsCheckbox: {
+      width: 28,
+      height: 28,
+      borderRadius: 8,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.background,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    termsCheckboxActive: {
+      borderColor: colors.accentText,
+      backgroundColor: colors.accentSecondary,
+    },
+    termsText: {
+      flex: 1,
+      color: colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 22,
+    },
+    termsLinkText: {
+      color: colors.textPrimary,
+      textDecorationLine: "underline",
+    },
+  });
+}

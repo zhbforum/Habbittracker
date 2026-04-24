@@ -8,7 +8,8 @@ import {
   type TextInputProps,
 } from "react-native";
 
-import { colors, typography } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { typography, useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
 type AuthInputFieldProps = {
@@ -42,6 +43,9 @@ export function AuthInputField({
   autoComplete,
   textContentType,
 }: AuthInputFieldProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.labelRow}>
@@ -88,49 +92,51 @@ export function AuthInputField({
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    width: "100%",
-    marginBottom: 16,
-  },
-  labelRow: {
-    marginBottom: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  label: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  labelActionText: {
-    color: colors.accentText,
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  inputContainer: {
-    minHeight: 58,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: colors.background,
-  },
-  input: {
-    flex: 1,
-    color: colors.textPrimary,
-    fontSize: 16,
-    lineHeight: 24,
-    fontFamily: typography.manropeRegular,
-    fontWeight: "400",
-    paddingVertical: 8,
-    includeFontPadding: false,
-  },
-  rightAccessory: {
-    marginLeft: 8,
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    wrapper: {
+      width: "100%",
+      marginBottom: 16,
+    },
+    labelRow: {
+      marginBottom: 8,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    label: {
+      color: colors.textPrimary,
+      fontSize: 16,
+      lineHeight: 22,
+    },
+    labelActionText: {
+      color: colors.accentText,
+      fontSize: 16,
+      lineHeight: 22,
+    },
+    inputContainer: {
+      minHeight: 58,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 16,
+      paddingHorizontal: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      backgroundColor: colors.background,
+    },
+    input: {
+      flex: 1,
+      color: colors.textPrimary,
+      fontSize: 16,
+      lineHeight: 24,
+      fontFamily: typography.manropeRegular,
+      fontWeight: "400",
+      paddingVertical: 8,
+      includeFontPadding: false,
+    },
+    rightAccessory: {
+      marginLeft: 8,
+    },
+  });
+}

@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
-import { colors } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
 type AuthFeedbackMessageProps = {
@@ -9,6 +10,9 @@ type AuthFeedbackMessageProps = {
 };
 
 export function AuthFeedbackMessage({ message, kind }: AuthFeedbackMessageProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
+
   return (
     <View
       style={[
@@ -23,30 +27,32 @@ export function AuthFeedbackMessage({ message, kind }: AuthFeedbackMessageProps)
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  successContainer: {
-    borderColor: colors.accentPrimary,
-    backgroundColor: "#EAF5EC",
-  },
-  errorContainer: {
-    borderColor: "#F2C3C3",
-    backgroundColor: "#FFF2F2",
-  },
-  text: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  successText: {
-    color: "#1D6B2A",
-  },
-  errorText: {
-    color: "#B42318",
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: {
+      marginTop: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+    },
+    successContainer: {
+      borderColor: colors.successBorder,
+      backgroundColor: colors.successSurface,
+    },
+    errorContainer: {
+      borderColor: colors.errorBorder,
+      backgroundColor: colors.errorSurface,
+    },
+    text: {
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    successText: {
+      color: colors.successText,
+    },
+    errorText: {
+      color: colors.errorText,
+    },
+  });
+}

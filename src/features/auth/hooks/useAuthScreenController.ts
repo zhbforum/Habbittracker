@@ -109,7 +109,7 @@ export function useAuthScreenController() {
     }
 
     setSuccessFeedback(result.message);
-    router.replace(routes.home);
+    router.replace(routes.profile);
   }, [router, setErrorFeedback, setSuccessFeedback, signInValues]);
 
   const submitSignUp = useCallback(async () => {
@@ -143,7 +143,7 @@ export function useAuthScreenController() {
       return;
     }
 
-    router.replace(routes.home);
+    router.replace(routes.profile);
   }, [router, setErrorFeedback, setSuccessFeedback, signUpValues]);
 
   const handlePrimaryActionPress = useCallback(() => {
@@ -179,7 +179,7 @@ export function useAuthScreenController() {
     setSuccessFeedback(result.message);
 
     if (result.status === "success") {
-      router.replace(routes.home);
+      router.replace(routes.profile);
     }
   }, [isSubmitting, router, setErrorFeedback, setSuccessFeedback]);
 
