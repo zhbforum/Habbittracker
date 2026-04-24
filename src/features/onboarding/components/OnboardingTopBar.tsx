@@ -1,7 +1,8 @@
 import { ArrowLeft } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 import type { OnboardingBackButtonVariant } from "../model/types";
 
@@ -18,6 +19,8 @@ export function OnboardingTopBar({
   onBackPress,
   onSkipPress,
 }: OnboardingTopBarProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   const isBackButtonHidden = backButtonVariant === "hidden";
   const isBackButtonPlain = backButtonVariant === "plain";
 
@@ -47,41 +50,43 @@ export function OnboardingTopBar({
   );
 }
 
-const styles = StyleSheet.create({
-  topBar: {
-    minHeight: 44,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  topBarSpacer: {
-    width: 44,
-    height: 44,
-  },
-  topBarTitleSpacer: {
-    flex: 1,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.accentSecondary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  backButtonPlain: {
-    width: 44,
-    height: 44,
-    borderRadius: 0,
-    backgroundColor: "transparent",
-  },
-  skipButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-  },
-  skipText: {
-    color: colors.textMuted,
-    fontSize: 18,
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    topBar: {
+      minHeight: 44,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 8,
+    },
+    topBarSpacer: {
+      width: 44,
+      height: 44,
+    },
+    topBarTitleSpacer: {
+      flex: 1,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.accentSecondary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    backButtonPlain: {
+      width: 44,
+      height: 44,
+      borderRadius: 0,
+      backgroundColor: "transparent",
+    },
+    skipButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 4,
+    },
+    skipText: {
+      color: colors.textMuted,
+      fontSize: 18,
+    },
+  });
+}

@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 import type {
   OnboardingPrimaryAction,
@@ -26,6 +27,9 @@ export function OnboardingFooter({
   onPrimaryPress,
   onSecondaryActionPress,
 }: OnboardingFooterProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.bottomSection}>
       <Pressable style={styles.primaryButton} onPress={onPrimaryPress}>
@@ -55,46 +59,48 @@ export function OnboardingFooter({
   );
 }
 
-const styles = StyleSheet.create({
-  bottomSection: {
-    marginTop: 12,
-    alignItems: "center",
-  },
-  dotsBelowButton: {
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  primaryButton: {
-    width: "100%",
-    backgroundColor: colors.accentPrimary,
-    borderRadius: 24,
-    paddingVertical: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryButtonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  primaryButtonText: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    lineHeight: 28,
-  },
-  primaryButtonArrow: {
-    color: colors.textPrimary,
-    fontSize: 20,
-    lineHeight: 28,
-  },
-  secondaryActionButton: {
-    marginTop: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  secondaryActionText: {
-    color: colors.textMuted,
-    fontSize: 16,
-    lineHeight: 22,
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    bottomSection: {
+      marginTop: 12,
+      alignItems: "center",
+    },
+    dotsBelowButton: {
+      marginTop: 16,
+      marginBottom: 4,
+    },
+    primaryButton: {
+      width: "100%",
+      backgroundColor: colors.accentPrimary,
+      borderRadius: 24,
+      paddingVertical: 18,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    primaryButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    primaryButtonText: {
+      color: colors.textPrimary,
+      fontSize: 20,
+      lineHeight: 28,
+    },
+    primaryButtonArrow: {
+      color: colors.textPrimary,
+      fontSize: 20,
+      lineHeight: 28,
+    },
+    secondaryActionButton: {
+      marginTop: 20,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+    },
+    secondaryActionText: {
+      color: colors.textMuted,
+      fontSize: 16,
+      lineHeight: 22,
+    },
+  });
+}

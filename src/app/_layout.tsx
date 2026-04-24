@@ -3,11 +3,13 @@ import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { Manrope_400Regular } from "@expo-google-fonts/manrope";
 import * as Linking from "expo-linking";
-import { Alert } from "react-native";
 import { useCallback, useEffect, useRef } from "react";
 
 import { resolveAuthRedirectUrl } from "@/features/auth/services/authRedirectService";
+import { getErrorMessage } from "@/shared/lib";
 import { routes } from "@/shared/navigation/routes";
+import { ThemeProvider } from "@/shared/theme";
+import { AppToastHost, showErrorToast } from "@/shared/ui";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -44,20 +46,20 @@ export default function RootLayout() {
         lastHandledUrlRef.current = url;
 
         if (result.status === "success") {
-          router.replace(routes.home);
+          router.replace(routes.profile);
           return;
         }
 
         if (result.status === "error") {
-          Alert.alert("Auth link error", result.message);
+          showErrorToast("Auth link error", result.message);
         }
       } catch (callbackError) {
-        const fallbackMessage =
-          callbackError instanceof Error
-            ? callbackError.message
-            : "Unable to process auth link.";
+        const fallbackMessage = getErrorMessage(
+          callbackError,
+          "Unable to process auth link.",
+        );
 
-        Alert.alert("Auth link error", fallbackMessage);
+        showErrorToast("Auth link error", fallbackMessage);
       } finally {
         if (pendingUrlRef.current === url) {
           pendingUrlRef.current = null;
@@ -87,5 +89,10 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <ThemeProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+      <AppToastHost />
+    </ThemeProvider>
+  );
 }
