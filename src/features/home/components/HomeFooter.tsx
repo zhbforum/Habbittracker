@@ -8,7 +8,8 @@ import {
 import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from "@/shared/theme";
+import type { ThemeColors } from "@/shared/theme";
+import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
 export type HomeTabId = "home" | "habits" | "stats" | "profile";
@@ -49,6 +50,8 @@ type HomeFooterProps = {
 
 export function HomeFooter({ activeTab = "home", onTabPress }: HomeFooterProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
 
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
@@ -79,26 +82,28 @@ export function HomeFooter({ activeTab = "home", onTabPress }: HomeFooterProps) 
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    borderTopWidth: 1,
-    borderTopColor: colors.accentSecondary,
-    paddingTop: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: colors.background,
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    paddingVertical: 6,
-  },
-  tabLabel: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
-});
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: {
+      width: "100%",
+      borderTopWidth: 1,
+      borderTopColor: colors.accentSecondary,
+      paddingTop: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: colors.background,
+    },
+    tabButton: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4,
+      paddingVertical: 6,
+    },
+    tabLabel: {
+      fontSize: 12,
+      lineHeight: 16,
+    },
+  });
+}
