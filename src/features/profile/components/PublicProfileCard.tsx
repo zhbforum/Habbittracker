@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 
+import { AchievementsSection } from "@entities/achievement";
 import type { ThemeColors } from "@/shared/theme";
 import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
@@ -44,6 +45,12 @@ export function PublicProfileCard({ profileData }: PublicProfileCardProps) {
           {profileData.profile.bio || "No bio provided yet."}
         </AppText>
       </View>
+
+      <AchievementsSection
+        achievements={profileData.achievements}
+        summary={profileData.achievementSummary}
+        isPublicView
+      />
     </View>
   );
 }
