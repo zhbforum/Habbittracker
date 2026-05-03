@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 
-import { useHomeFooterNavigation } from "@/features/home/hooks/useHomeFooterNavigation";
+import { useHomeFooterNavigation } from "@shared/navigation/useHomeFooterNavigation";
 import { routes } from "@/shared/navigation/routes";
 
 import { useProfileScreenController } from "./useProfileScreenController";
