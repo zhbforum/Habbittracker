@@ -1,2 +1,2 @@
-export { default } from "@/features/profile/screens/PublicProfileScreen";
+export { PublicProfileScreen as default } from "@features/profile";
 
