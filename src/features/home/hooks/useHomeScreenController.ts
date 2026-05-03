@@ -1,34 +1,115 @@
-import { useRouter } from "expo-router";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 
-import { routes } from "@/shared/navigation/routes";
+import { resolveAndSyncAchievementsForUser } from "@entities/achievement";
+import { resolveDisplayName } from "@entities/profile";
 
-import { useHomeFooterNavigation } from "./useHomeFooterNavigation";
+import { useHomeFooterNavigation } from "@shared/navigation/useHomeFooterNavigation";
+import { useHomeScreenActions } from "./useHomeScreenActions";
+import { useHomeScreenData } from "./useHomeScreenData";
+import { useHomeScreenDerived } from "./useHomeScreenDerived";
 
-export function useHomeScreenController() {
-  const router = useRouter();
+type UseHomeScreenControllerArgs = {
+  user: User;
+};
+
+export function useHomeScreenController({ user }: UseHomeScreenControllerArgs) {
   const { activeTab, handleTabPress } = useHomeFooterNavigation("home");
+  const [isSaving, setIsSaving] = useState(false);
+  const initialDisplayName = resolveDisplayName(user).trim();
+  const syncAchievements = useCallback(() => {
+    void resolveAndSyncAchievementsForUser(user.id).catch(() => undefined);
+  }, [user.id]);
 
-  const openHabits = useCallback(() => {
-    router.push(routes.habits);
-  }, [router]);
+  const {
+    isLoading,
+    errorMessage,
+    displayName,
+    habits,
+    groups,
+    now,
+    setErrorMessage,
+    setHabits,
+    loadHomeData,
+  } = useHomeScreenData({
+    user,
+    initialDisplayName,
+    syncAchievements,
+  });
 
-  const openProfile = useCallback(() => {
-    router.push(routes.profile);
-  }, [router]);
+  const {
+    todayHabits,
+    todayGroups,
+    hasAnyGroups,
+    hasMoreGroups,
+    greeting,
+    dateLabel,
+    progress,
+  } = useHomeScreenDerived({
+    habits,
+    groups,
+    now,
+  });
 
-  const revisitOnboarding = useCallback(() => {
-    router.replace(routes.onboarding);
-  }, [router]);
+  const {
+    openHabits,
+    openCreateHabit,
+    openHabitById,
+    openGroupById,
+    toggleTodayCompletion,
+  } = useHomeScreenActions({
+    userId: user.id,
+    now,
+    isSaving,
+    syncAchievements,
+    setIsSaving,
+    setErrorMessage,
+    setHabits,
+  });
 
   return useMemo(
     () => ({
+      isLoading,
+      isSaving,
+      errorMessage,
       activeTab,
       handleTabPress,
+      greeting,
+      dateLabel,
+      displayName,
+      todayHabits,
+      todayGroups,
+      hasAnyGroups,
+      hasMoreGroups,
+      progress,
       openHabits,
-      openProfile,
-      revisitOnboarding,
+      openCreateHabit,
+      openHabitById,
+      openGroupById,
+      toggleTodayCompletion,
+      reload: () => loadHomeData(true),
     }),
-    [activeTab, handleTabPress, openHabits, openProfile, revisitOnboarding],
+    [
+      activeTab,
+      dateLabel,
+      displayName,
+      errorMessage,
+      greeting,
+      hasAnyGroups,
+      hasMoreGroups,
+      handleTabPress,
+      isLoading,
+      isSaving,
+      loadHomeData,
+      openCreateHabit,
+      openGroupById,
+      openHabitById,
+      openHabits,
+      progress,
+      todayGroups,
+      todayHabits,
+      toggleTodayCompletion,
+    ],
   );
 }
+
