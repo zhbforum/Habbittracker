@@ -1,12 +1,14 @@
 import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import { ScrollView, View } from "react-native";
 import type { User } from "@supabase/supabase-js";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { HomeFooter } from "@/features/home/components/HomeFooter";
+import { HomeFooter } from "@shared/navigation/HomeFooter";
 import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
 
+import { AchievementsExplorerSheet } from "../components/AchievementsExplorerSheet";
 import { ProfileEditSheet } from "../components/ProfileEditSheet";
 import { ProfileSignOutDialog } from "../components/ProfileSignOutDialog";
 import { ProfileThemeSheet } from "../components/ProfileThemeSheet";
@@ -24,6 +26,7 @@ type UserProfileScreenProps = {
 export function UserProfileScreen({ user }: UserProfileScreenProps) {
   const { colors, isDark } = useAppTheme();
   const styles = createUserProfileScreenStyles(colors);
+  const [isAchievementsSheetOpen, setIsAchievementsSheetOpen] = useState(false);
   const {
     activeTab,
     handleTabPress,
@@ -33,6 +36,8 @@ export function UserProfileScreen({ user }: UserProfileScreenProps) {
     isPickingAvatar,
     profile,
     stats,
+    achievements,
+    achievementSummary,
     formValues,
     setupUsernameValue,
     pendingAvatarUri,
@@ -100,7 +105,10 @@ export function UserProfileScreen({ user }: UserProfileScreenProps) {
                 usernameLabel={usernameLabel}
                 publicProfilePath={publicProfilePath}
                 stats={stats}
+                achievements={achievements}
+                achievementSummary={achievementSummary}
                 onOpenEdit={() => setIsEditSheetOpen(true)}
+                onOpenAchievementsExplorer={() => setIsAchievementsSheetOpen(true)}
               />
             ) : (
               <UserProfileLoaderCard isLoading={isLoading} onRetry={reload} />
@@ -140,6 +148,13 @@ export function UserProfileScreen({ user }: UserProfileScreenProps) {
         onResetAvatar={handleResetAvatar}
         onSave={handleEditSave}
         onClose={() => setIsEditSheetOpen(false)}
+      />
+
+      <AchievementsExplorerSheet
+        isVisible={isAchievementsSheetOpen}
+        achievements={achievements}
+        summary={achievementSummary}
+        onClose={() => setIsAchievementsSheetOpen(false)}
       />
     </>
   );

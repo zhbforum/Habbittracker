@@ -1,6 +1,11 @@
 import { PencilLine } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 
+import {
+  AchievementsSection,
+  type AchievementProgress,
+  type AchievementSummary,
+} from "@entities/achievement";
 import type { ThemeColors } from "@/shared/theme";
 import { useAppTheme } from "@/shared/theme";
 import { AppText } from "@/shared/ui";
@@ -15,7 +20,10 @@ type UserProfileDetailsSectionProps = {
   usernameLabel: string;
   publicProfilePath: string;
   stats: UserStats;
+  achievements: AchievementProgress[];
+  achievementSummary: AchievementSummary;
   onOpenEdit: () => void;
+  onOpenAchievementsExplorer: () => void;
 };
 
 export function UserProfileDetailsSection({
@@ -24,10 +32,14 @@ export function UserProfileDetailsSection({
   usernameLabel,
   publicProfilePath,
   stats,
+  achievements,
+  achievementSummary,
   onOpenEdit,
+  onOpenAchievementsExplorer,
 }: UserProfileDetailsSectionProps) {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
+  const unlockedAchievements = achievements.filter((achievement) => achievement.isUnlocked);
 
   return (
     <View style={styles.profileCard}>
@@ -63,6 +75,14 @@ export function UserProfileDetailsSection({
           {profile.bio || "No bio yet. Add a short intro to personalize your page."}
         </AppText>
       </View>
+
+      <AchievementsSection
+        achievements={unlockedAchievements}
+        summary={achievementSummary}
+        emptyText="No unlocked achievements yet. Complete your first habits to start collecting badges."
+        headerActionLabel="View all"
+        onPressHeaderAction={onOpenAchievementsExplorer}
+      />
     </View>
   );
 }
