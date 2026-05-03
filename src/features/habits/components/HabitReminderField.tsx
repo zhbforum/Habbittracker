@@ -11,6 +11,8 @@ import { TimeWheelPicker } from "./TimeWheelPicker";
 type HabitReminderFieldProps = {
   value: string;
   isParentVisible: boolean;
+  label?: string;
+  helperText?: string;
   onChange: (nextValue: string) => void;
   onPickerVisibilityChange?: (isOpen: boolean) => void;
 };
@@ -18,6 +20,8 @@ type HabitReminderFieldProps = {
 export function HabitReminderField({
   value,
   isParentVisible,
+  label = "Reminder time",
+  helperText = "Tap to set reminder",
   onChange,
   onPickerVisibilityChange,
 }: HabitReminderFieldProps) {
@@ -37,13 +41,13 @@ export function HabitReminderField({
 
   return (
     <View>
-      <AppText style={styles.fieldLabel}>Reminder time</AppText>
+      <AppText style={styles.fieldLabel}>{label}</AppText>
       <Pressable
         style={styles.reminderPreviewButton}
         onPress={() => setIsPickerOpen((currentValue) => !currentValue)}
       >
         <View style={styles.reminderPreviewTextWrap}>
-          <AppText style={styles.reminderHelpText}>Tap to set reminder</AppText>
+          <AppText style={styles.reminderHelpText}>{helperText}</AppText>
           <AppText style={styles.reminderSelectedTime}>{formatTimeLabel(value)}</AppText>
         </View>
 

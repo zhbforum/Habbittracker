@@ -1,0 +1,105 @@
+import type { ThemeColors } from "@shared/theme";
+
+export function createHabitDetailsSheetValueAndActionsStyles(colors: ThemeColors) {
+  return {
+    valueEntryCard: {
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceSecondary,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      gap: 8,
+    },
+    valueEntryTitle: {
+      color: colors.textPrimary,
+      fontSize: 14,
+      lineHeight: 19,
+    },
+    valueEntryRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    valueInput: {
+      flex: 1,
+      minHeight: 40,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 10,
+      color: colors.textPrimary,
+      fontSize: 14,
+      lineHeight: 19,
+    },
+    valueActionButton: {
+      minHeight: 40,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.accentPrimary,
+      backgroundColor: colors.accentPrimary,
+      paddingHorizontal: 12,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    valueActionButtonText: {
+      color: colors.textPrimary,
+      fontSize: 13,
+      lineHeight: 17,
+    },
+    valueSecondaryButton: {
+      minHeight: 40,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 12,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    valueSecondaryButtonText: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      lineHeight: 17,
+    },
+    actionsRow: {
+      marginTop: 8,
+      flexDirection: "row",
+      gap: 10,
+    },
+    secondaryButton: {
+      flex: 1,
+      minHeight: 46,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceSecondary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    secondaryButtonText: {
+      color: colors.textSecondary,
+      fontSize: 15,
+      lineHeight: 20,
+    },
+    dangerButton: {
+      flex: 1,
+      minHeight: 46,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.errorBorder,
+      backgroundColor: colors.errorSurface,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    dangerButtonText: {
+      color: colors.errorText,
+      fontSize: 15,
+      lineHeight: 20,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+  } as const;
+}

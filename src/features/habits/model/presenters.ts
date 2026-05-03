@@ -28,9 +28,21 @@ export function getReminderLabel(habit: Habit): string {
 }
 
 export function getCompletionActionLabel(habit: HabitWithMetrics): string {
+  if (habit.goal.metric === "value") {
+    return habit.metrics.completedToday ? "Goal reached" : "Log value";
+  }
+
   if (habit.kind === "positive") {
     return habit.metrics.completedToday ? "Done today" : "Mark done";
   }
 
   return habit.metrics.completedToday ? "Stayed clean" : "Mark clean day";
+}
+
+export function getGoalLabel(habit: Habit): string {
+  const unitLabel = habit.goal.unit.trim();
+  const periodLabel =
+    habit.goal.period === "day" ? "day" : habit.goal.period === "week" ? "week" : "month";
+
+  return `${habit.goal.target} ${unitLabel}/${periodLabel}`;
 }

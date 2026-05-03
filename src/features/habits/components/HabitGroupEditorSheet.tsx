@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -8,56 +9,47 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useHabitEditorState } from "@features/habits/hooks/useHabitEditorState";
-import type { HabitFormValues } from "@features/habits/model/types";
 import { useAppTheme } from "@shared/theme";
 import { AppText } from "@shared/ui";
 
-import { createHabitEditorSheetStyles } from "./HabitEditorSheet.styles";
-import { HabitEditorGoalSection } from "./HabitEditorGoalSection";
-import { HabitEditorIdentitySection } from "./HabitEditorIdentitySection";
-import { HabitEditorScheduleSection } from "./HabitEditorScheduleSection";
+import type { HabitGroupFormValues, HabitWithMetrics } from "../model/types";
+import { HabitGroupEditorGoalSection } from "./HabitGroupEditorGoalSection";
+import { HabitGroupEditorIdentitySection } from "./HabitGroupEditorIdentitySection";
+import { HabitGroupEditorScheduleSection } from "./HabitGroupEditorScheduleSection";
+import { createHabitGroupEditorSheetStyles } from "./HabitGroupEditorSheet.styles";
 
-type HabitEditorSheetProps = {
+type HabitGroupEditorSheetProps = {
   isVisible: boolean;
   mode: "create" | "edit";
-  values: HabitFormValues;
+  values: HabitGroupFormValues;
   errorMessage: string | null;
   isSaving: boolean;
-  onFieldChange: <K extends keyof HabitFormValues>(
+  availableHabits: HabitWithMetrics[];
+  onFieldChange: <K extends keyof HabitGroupFormValues>(
     field: K,
-    value: HabitFormValues[K],
+    value: HabitGroupFormValues[K],
   ) => void;
-  onToggleCustomWeekday: (weekday: HabitFormValues["weeklyWeekday"]) => void;
+  onToggleHabit: (habitId: string) => void;
   onSave: () => void;
   onClose: () => void;
 };
 
-export function HabitEditorSheet({
+export function HabitGroupEditorSheet({
   isVisible,
   mode,
   values,
   errorMessage,
   isSaving,
+  availableHabits,
   onFieldChange,
-  onToggleCustomWeekday,
+  onToggleHabit,
   onSave,
   onClose,
-}: HabitEditorSheetProps) {
+}: HabitGroupEditorSheetProps) {
   const { colors } = useAppTheme();
-  const styles = createHabitEditorSheetStyles(colors);
-  const {
-    isReminderPickerOpen,
-    setIsReminderPickerOpen,
-    handleGoalMetricSelect,
-    handleGoalTargetChange,
-    saveButtonLabel,
-  } = useHabitEditorState({
-    mode,
-    isSaving,
-    values,
-    onFieldChange,
-  });
+  const styles = createHabitGroupEditorSheetStyles(colors);
+  const [isStartPickerOpen, setIsStartPickerOpen] = useState(false);
+  const [isEndPickerOpen, setIsEndPickerOpen] = useState(false);
 
   return (
     <Modal
@@ -74,15 +66,15 @@ export function HabitEditorSheet({
           <View style={styles.sheet}>
             <View style={styles.handle} />
             <AppText style={styles.title}>
-              {mode === "create" ? "Create Habit" : "Edit Habit"}
+              {mode === "create" ? "Create Group" : "Edit Group"}
             </AppText>
 
             <ScrollView
               style={styles.formScroll}
               keyboardShouldPersistTaps="handled"
-              scrollEnabled={!isReminderPickerOpen}
               contentContainerStyle={styles.formContent}
               showsVerticalScrollIndicator={false}
+              scrollEnabled={!isStartPickerOpen && !isEndPickerOpen}
             >
               {errorMessage ? (
                 <View style={styles.errorBanner}>
@@ -90,29 +82,30 @@ export function HabitEditorSheet({
                 </View>
               ) : null}
 
-              <HabitEditorIdentitySection
+              <HabitGroupEditorIdentitySection
                 values={values}
                 colors={colors}
                 styles={styles}
                 onFieldChange={onFieldChange}
               />
 
-              <HabitEditorGoalSection
-                values={values}
-                colors={colors}
-                styles={styles}
-                handleGoalMetricSelect={handleGoalMetricSelect}
-                handleGoalTargetChange={handleGoalTargetChange}
-                onFieldChange={onFieldChange}
-              />
-
-              <HabitEditorScheduleSection
+              <HabitGroupEditorScheduleSection
                 isVisible={isVisible}
                 values={values}
+                colors={colors}
                 styles={styles}
-                onToggleCustomWeekday={onToggleCustomWeekday}
                 onFieldChange={onFieldChange}
-                setIsReminderPickerOpen={setIsReminderPickerOpen}
+                setIsStartPickerOpen={setIsStartPickerOpen}
+                setIsEndPickerOpen={setIsEndPickerOpen}
+              />
+
+              <HabitGroupEditorGoalSection
+                values={values}
+                availableHabits={availableHabits}
+                colors={colors}
+                styles={styles}
+                onToggleHabit={onToggleHabit}
+                onFieldChange={onFieldChange}
               />
             </ScrollView>
 
@@ -121,11 +114,19 @@ export function HabitEditorSheet({
                 <AppText style={styles.secondaryButtonText}>Cancel</AppText>
               </Pressable>
               <Pressable
-                style={[styles.primaryButton, isSaving && styles.buttonDisabled]}
+                style={[styles.primaryButton, isSaving && styles.disabledButton]}
                 onPress={onSave}
                 disabled={isSaving}
               >
-                <AppText style={styles.primaryButtonText}>{saveButtonLabel}</AppText>
+                <AppText style={styles.primaryButtonText}>
+                  {isSaving
+                    ? mode === "create"
+                      ? "Creating..."
+                      : "Saving..."
+                    : mode === "create"
+                      ? "Create"
+                      : "Save"}
+                </AppText>
               </Pressable>
             </View>
           </View>
