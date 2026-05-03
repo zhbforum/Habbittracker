@@ -4,7 +4,7 @@ import type { Href } from "expo-router";
 import {
   hasCompletedOnboarding,
   markOnboardingAsCompleted,
-} from "@/features/onboarding/services/onboardingStorage";
+} from "@features/onboarding";
 import { useAuthSession } from "@/shared/auth";
 import { routes } from "@/shared/navigation/routes";
 

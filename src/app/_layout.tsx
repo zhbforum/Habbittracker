@@ -5,7 +5,7 @@ import { Manrope_400Regular } from "@expo-google-fonts/manrope";
 import * as Linking from "expo-linking";
 import { useCallback, useEffect, useRef } from "react";
 
-import { resolveAuthRedirectUrl } from "@/features/auth/services/authRedirectService";
+import { resolveAuthRedirectUrl } from "@features/auth";
 import { getErrorMessage } from "@/shared/lib";
 import { routes } from "@/shared/navigation/routes";
 import { ThemeProvider } from "@/shared/theme";

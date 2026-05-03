@@ -4,7 +4,7 @@ import { useAuthSession } from "@/shared/auth";
 import type { ThemeColors } from "@/shared/theme";
 import { useAppTheme } from "@/shared/theme";
 
-import AuthScreen from "@/features/auth/screens/AuthScreen";
+import { AuthScreen } from "@features/auth";
 
 import { UserProfileScreen } from "./UserProfileScreen";
 

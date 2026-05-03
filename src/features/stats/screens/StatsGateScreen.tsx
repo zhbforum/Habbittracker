@@ -5,9 +5,9 @@ import { useAuthSession } from "@/shared/auth";
 import type { ThemeColors } from "@/shared/theme";
 import { useAppTheme } from "@/shared/theme";
 
-import { HabitsScreen } from "./HabitsScreen";
+import StatsScreen from "./StatsScreen";
 
-export default function HabitsGateScreen() {
+export default function StatsGateScreen() {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
   const { isLoading, user } = useAuthSession();
@@ -24,7 +24,7 @@ export default function HabitsGateScreen() {
     return <AuthScreen />;
   }
 
-  return <HabitsScreen user={user} />;
+  return <StatsScreen user={user} />;
 }
 
 function createStyles(colors: ThemeColors) {
