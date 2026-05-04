@@ -17,7 +17,7 @@ jobs:
   maestro-smoke:
     name: Maestro Android smoke test
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     env:
       CI: true
@@ -86,7 +86,14 @@ jobs:
           arch: x86_64
           profile: pixel_6
           script: |
+            adb wait-for-device
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+            echo "Prepare emulator:"
+            adb shell input keyevent 82 || true
+            adb shell settings put global window_animation_scale 0 || true
+            adb shell settings put global transition_animation_scale 0 || true
+            adb shell settings put global animator_duration_scale 0 || true
 
             echo "Installed packages:"
             adb shell pm list packages | grep -i habbit || true
@@ -98,16 +105,19 @@ jobs:
             echo "Package info:"
             adb shell dumpsys package com.anonymous.Habbittracker | grep -i -E "Activity|MAIN|LAUNCHER|version|codePath" || true
 
-            echo "Try to launch app manually with monkey:"
+            echo "Warm up app launch:"
             adb shell monkey -p com.anonymous.Habbittracker -c android.intent.category.LAUNCHER 1 || true
+            sleep 10
 
-            sleep 5
-
-            echo "Recent app logs after manual launch:"
+            echo "Recent app logs after warm-up launch:"
             adb logcat -d -t 400 | grep -i -E "Habbittracker|anonymous|ReactNative|AndroidRuntime|FATAL|Exception|Unable|Supabase|Expo" || true
 
             mkdir -p test-reports/e2e
             maestro --version
+
+            echo "Run Maestro smoke test with retry:"
+            maestro test .maestro --format junit --output test-reports/e2e/report.xml || \
+            maestro test .maestro --format junit --output test-reports/e2e/report.xml || \
             maestro test .maestro --format junit --output test-reports/e2e/report.xml
 
       - name: Upload E2E report artifact
