@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version, e.g. 1.0.0"
+        description: "Release version, e.g. v1.0.0"
         required: true
         type: string
       prerelease:
@@ -31,6 +31,10 @@ jobs:
       NODE_ENV: production
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+      HABBITTRACKER_UPLOAD_STORE_FILE: ${{ github.workspace }}/android/app/habbittracker-upload.keystore
+      HABBITTRACKER_UPLOAD_STORE_PASSWORD: ${{ secrets.HABBITTRACKER_UPLOAD_STORE_PASSWORD }}
+      HABBITTRACKER_UPLOAD_KEY_ALIAS: ${{ secrets.HABBITTRACKER_UPLOAD_KEY_ALIAS }}
+      HABBITTRACKER_UPLOAD_KEY_PASSWORD: ${{ secrets.HABBITTRACKER_UPLOAD_KEY_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -55,19 +59,12 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-      - name: Generate debug keystore
+      - name: Restore release keystore
+        env:
+          HABBITTRACKER_UPLOAD_KEYSTORE_BASE64: ${{ secrets.HABBITTRACKER_UPLOAD_KEYSTORE_BASE64 }}
         run: |
-          keytool -genkeypair \
-            -v \
-            -storetype JKS \
-            -keystore android/app/debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          printf '%s' "$HABBITTRACKER_UPLOAD_KEYSTORE_BASE64" | base64 --decode > android/app/habbittracker-upload.keystore
+          chmod 600 android/app/habbittracker-upload.keystore
 
       - name: Build release APK
         working-directory: android
