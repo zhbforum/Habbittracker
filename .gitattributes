@@ -1,0 +1,11 @@
+* text=auto
+
+# Unix line endings for scripts and Gradle files
+*.sh text eol=lf
+*.gradle text eol=lf
+*.properties text eol=lf
+gradlew text eol=lf
+android/gradlew text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
