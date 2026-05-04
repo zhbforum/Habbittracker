@@ -116,9 +116,7 @@ jobs:
             maestro --version
 
             echo "Run Maestro smoke test with retry:"
-            maestro test .maestro --format junit --output test-reports/e2e/report.xml || \
-            maestro test .maestro --format junit --output test-reports/e2e/report.xml || \
-            maestro test .maestro --format junit --output test-reports/e2e/report.xml
+            bash -lc 'for attempt in 1 2 3; do echo "Maestro attempt $attempt/3"; adb shell am force-stop com.anonymous.Habbittracker || true; maestro test .maestro --format junit --output test-reports/e2e/report.xml && exit 0; echo "Attempt $attempt failed"; adb logcat -d -t 200 | grep -i -E "Habbittracker|anonymous|ReactNative|AndroidRuntime|FATAL|Exception|Unable|Supabase|Expo" || true; sleep 5; done; exit 1'
 
       - name: Upload E2E report artifact
         if: always()
