@@ -1,3 +1,18 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+        base: auto
+        informational: true
+    patch:
+      default:
+        target: auto
+        threshold: 5%
+        base: auto
+        informational: true
+
 comment:
   layout: "diff, flags, files"
   behavior: default
