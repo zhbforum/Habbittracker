@@ -46,3 +46,9 @@ app-example
 
 # Local files of IDE 
 .vscode
+
+# Test coverage reports 
+coverage/
+
+# E2E reports
+test-reports/
