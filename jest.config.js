@@ -18,7 +18,7 @@ module.exports = {
   },
 
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo|expo-modules-core|@expo/.*|@expo-google-fonts/.*|@react-navigation/.*|react-native-reanimated|react-native-worklets|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|lucide-react-native|react-native-svg)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo|expo-modules-core|expo-status-bar|expo-system-ui|@expo/.*|@expo-google-fonts/.*|@react-navigation/.*|react-native-reanimated|react-native-worklets|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-toast-message|lucide-react-native|react-native-svg|react-native-url-polyfill)/)',
   ],
 
   testPathIgnorePatterns: [

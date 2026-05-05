@@ -6,6 +6,10 @@ import { jest } from "@jest/globals";
 
 require("react-native-reanimated").setUpTests();
 
+jest.mock("@/shared/theme", () =>
+  jest.requireActual("@/test/mocks/sharedTheme").createSharedThemeMock(),
+);
+
 jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
