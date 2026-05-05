@@ -4,20 +4,67 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
   group: android-e2e-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
+  changes:
+    name: Detect E2E changes
+    runs-on: ubuntu-latest
+
+    outputs:
+      e2e: ${{ steps.filter.outputs.changed }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed files
+        id: filter
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          EVENT_ACTION="${{ github.event.action }}"
+          BEFORE_SHA="${{ github.event.before }}"
+          PR_BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          if [[ "$EVENT_ACTION" == "synchronize" && -n "$BEFORE_SHA" ]]; then
+            CHANGED_FILES="$(git diff --name-only "$BEFORE_SHA" "$PR_HEAD_SHA")"
+          else
+            CHANGED_FILES="$(git diff --name-only "$PR_BASE_SHA...$PR_HEAD_SHA")"
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          E2E_REGEX='^(android/|src/|app/|assets/|\.maestro/|package\.json$|bun\.lock$|app\.json$|app\.config\.(js|ts)$|eas\.json$|babel\.config\.js$|metro\.config\.js$|tsconfig\.json$|expo-env\.d\.ts$|index\.(js|ts|tsx)$|App\.(js|ts|tsx)$|\.github/workflows/android-e2e\.yml$)'
+
+          if echo "$CHANGED_FILES" | grep -qE "$E2E_REGEX"; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   maestro-smoke:
     name: Maestro Android smoke test
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    needs: changes
+    timeout-minutes: 25
+
+    if: needs.changes.outputs.e2e == 'true'
 
     env:
       CI: true
@@ -81,7 +128,7 @@ jobs:
       - name: Run Maestro smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 34
           target: google_apis
           arch: x86_64
           profile: pixel_6
@@ -116,7 +163,7 @@ jobs:
             maestro --version
 
             echo "Run Maestro smoke test with retry:"
-            bash -lc 'for attempt in 1 2 3; do echo "Maestro attempt $attempt/3"; adb shell am force-stop com.anonymous.Habbittracker || true; maestro test .maestro --format junit --output test-reports/e2e/report.xml && exit 0; echo "Attempt $attempt failed"; adb logcat -d -t 200 | grep -i -E "Habbittracker|anonymous|ReactNative|AndroidRuntime|FATAL|Exception|Unable|Supabase|Expo" || true; sleep 5; done; exit 1'
+            bash -lc 'for attempt in 1 2; do echo "Maestro attempt $attempt/2"; adb shell am force-stop com.anonymous.Habbittracker || true; maestro test .maestro --format junit --output test-reports/e2e/report.xml && exit 0; echo "Attempt $attempt failed"; adb logcat -d -t 200 | grep -i -E "Habbittracker|anonymous|ReactNative|AndroidRuntime|FATAL|Exception|Unable|Supabase|Expo" || true; sleep 5; done; exit 1'
 
       - name: Upload E2E report artifact
         if: always()

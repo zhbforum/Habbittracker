@@ -4,19 +4,67 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
   group: android-build-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
+  changes:
+    name: Detect Android changes
+    runs-on: ubuntu-latest
+
+    outputs:
+      android: ${{ steps.filter.outputs.changed }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed files
+        id: filter
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          EVENT_ACTION="${{ github.event.action }}"
+          BEFORE_SHA="${{ github.event.before }}"
+          PR_BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          if [[ "$EVENT_ACTION" == "synchronize" && -n "$BEFORE_SHA" ]]; then
+            CHANGED_FILES="$(git diff --name-only "$BEFORE_SHA" "$PR_HEAD_SHA")"
+          else
+            CHANGED_FILES="$(git diff --name-only "$PR_BASE_SHA...$PR_HEAD_SHA")"
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          ANDROID_REGEX='^(android/|src/|app/|assets/|package\.json$|bun\.lock$|app\.json$|app\.config\.(js|ts)$|eas\.json$|babel\.config\.js$|metro\.config\.js$|tsconfig\.json$|expo-env\.d\.ts$|index\.(js|ts|tsx)$|App\.(js|ts|tsx)$|\.github/workflows/android-build\.yml$)'
+
+          if echo "$CHANGED_FILES" | grep -qE "$ANDROID_REGEX"; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    needs: changes
+    timeout-minutes: 25
+
+    if: needs.changes.outputs.android == 'true'
 
     env:
       CI: true
