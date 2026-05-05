@@ -49,9 +49,8 @@ function toSafeString(value: unknown): string | null {
 }
 
 function normalizeWeekdayList(weekdays: HabitWeekday[]): HabitWeekday[] {
-  const uniqueValues = Array.from(new Set(weekdays));
-  return uniqueValues
-    .map((value) => (((value % 7) + 7) % 7) as HabitWeekday)
+  const normalizedValues = weekdays.map((value) => (((value % 7) + 7) % 7) as HabitWeekday);
+  return Array.from(new Set(normalizedValues))
     .sort((left, right) => left - right);
 }
 
