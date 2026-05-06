@@ -38,11 +38,14 @@ function createSupabaseStorageMock(args?: {
         }
       : null,
   });
+
   const getPublicUrl = jest.fn().mockReturnValue({
     data: {
-      publicUrl: args?.publicUrl ?? "https://cdn.example.com/avatars/user-1/avatar.jpg",
+      publicUrl:
+        args?.publicUrl ?? "https://cdn.example.com/avatars/user-1/avatar.jpg",
     },
   });
+
   const from = jest.fn().mockReturnValue({
     upload,
     getPublicUrl,
@@ -62,17 +65,17 @@ function createSupabaseStorageMock(args?: {
 }
 
 describe("profileAvatar", () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn() as typeof fetch;
+    globalThis.fetch = jest.fn() as unknown as typeof fetch;
   });
 
   afterEach(() => {
     jest.useRealTimers();
     jest.restoreAllMocks();
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
   });
 
   it("Given unsupported uri scheme, When uploading avatar, Then it throws invalid source error", async () => {
@@ -80,11 +83,11 @@ describe("profileAvatar", () => {
       uploadAvatarFromDevice("user-1", "https://example.com/avatar.jpg"),
     ).rejects.toThrow("Invalid avatar source.");
 
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it("Given fetch cannot read selected image, When uploading avatar, Then it throws read error", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(
+    (globalThis.fetch as jest.Mock).mockResolvedValue(
       createFetchResponse({
         ok: false,
       }),
@@ -96,15 +99,17 @@ describe("profileAvatar", () => {
   });
 
   it("Given unsupported file extension, When uploading avatar, Then it throws format validation error", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+    (globalThis.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
 
     await expect(
       uploadAvatarFromDevice("user-3", "file:///storage/avatar.gif"),
-    ).rejects.toThrow("Unsupported avatar format. Please use JPG, PNG, or WEBP.");
+    ).rejects.toThrow(
+      "Unsupported avatar format. Please use JPG, PNG, or WEBP.",
+    );
   });
 
   it("Given oversized avatar file, When uploading avatar, Then it throws size validation error", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(
+    (globalThis.fetch as jest.Mock).mockResolvedValue(
       createFetchResponse({
         bytes: 5 * 1024 * 1024 + 1,
       }),
@@ -116,7 +121,8 @@ describe("profileAvatar", () => {
   });
 
   it("Given Supabase upload fails, When uploading avatar, Then it throws upload error message", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+    (globalThis.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+
     createSupabaseStorageMock({
       uploadErrorMessage: "storage upload failed",
     });
@@ -127,7 +133,8 @@ describe("profileAvatar", () => {
   });
 
   it("Given uploaded file has no public URL, When uploading avatar, Then it throws URL resolution error", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+    (globalThis.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+
     createSupabaseStorageMock({
       publicUrl: "",
     });
@@ -140,7 +147,9 @@ describe("profileAvatar", () => {
   it("Given valid local JPEG file, When uploading avatar, Then it uploads with normalized mime type and returns public URL", async () => {
     jest.spyOn(Date, "now").mockReturnValue(1_721_000_000_000);
     jest.spyOn(Math, "random").mockReturnValue(0.123456789);
-    (global.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+
+    (globalThis.fetch as jest.Mock).mockResolvedValue(createFetchResponse({}));
+
     const supabase = createSupabaseStorageMock({
       publicUrl: "https://cdn.example.com/avatars/user-7/profile.jpg",
     });
@@ -151,6 +160,7 @@ describe("profileAvatar", () => {
     );
 
     expect(supabase.from).toHaveBeenCalledWith("avatars");
+
     expect(supabase.upload).toHaveBeenCalledWith(
       expect.stringMatching(/^user-7\/\d+-[a-z0-9]{6}\.jpg$/),
       expect.any(ArrayBuffer),
@@ -159,6 +169,7 @@ describe("profileAvatar", () => {
         upsert: false,
       },
     );
+
     expect(result).toBe("https://cdn.example.com/avatars/user-7/profile.jpg");
   });
 });
