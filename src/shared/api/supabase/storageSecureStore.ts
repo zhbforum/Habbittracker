@@ -111,6 +111,16 @@ function splitIntoSecureStoreChunks(value: string): string[] {
   return chunks;
 }
 
+async function deleteChunkKeysInRange(key: string, partsCount: number): Promise<void> {
+  for (let index = 0; index < partsCount; index += 1) {
+    try {
+      await SecureStore.deleteItemAsync(createChunkKey(key, index), SECURE_STORE_OPTIONS);
+    } catch {
+      // Keep storage cleanup non-fatal for auth flows
+    }
+  }
+}
+
 async function canUseSecureStore(): Promise<boolean> {
   if (Platform.OS === "web") {
     return false;
@@ -162,6 +172,7 @@ async function writeChunkedSecureStoreItem(key: string, value: string): Promise<
     return true;
   } catch {
     await deleteSecureStoreItem(key);
+    await deleteChunkKeysInRange(key, chunks.length);
     return false;
   }
 }
