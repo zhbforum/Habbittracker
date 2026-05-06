@@ -12,6 +12,12 @@ const SECURE_STORE_CHUNK_META_PREFIX = "__chunked__:";
 
 let secureStoreAvailabilityPromise: Promise<boolean> | null = null;
 
+export const __testing = {
+  resetSecureStoreAvailabilityCache() {
+    secureStoreAvailabilityPromise = null;
+  },
+};
+
 function estimateUtf8ByteSize(value: string): number {
   if (typeof TextEncoder !== "undefined") {
     return new TextEncoder().encode(value).length;
@@ -111,6 +117,16 @@ function splitIntoSecureStoreChunks(value: string): string[] {
   return chunks;
 }
 
+async function deleteChunkKeysInRange(key: string, partsCount: number): Promise<void> {
+  for (let index = 0; index < partsCount; index += 1) {
+    try {
+      await SecureStore.deleteItemAsync(createChunkKey(key, index), SECURE_STORE_OPTIONS);
+    } catch {
+      // Keep storage cleanup non-fatal for auth flows
+    }
+  }
+}
+
 async function canUseSecureStore(): Promise<boolean> {
   if (Platform.OS === "web") {
     return false;
@@ -162,6 +178,7 @@ async function writeChunkedSecureStoreItem(key: string, value: string): Promise<
     return true;
   } catch {
     await deleteSecureStoreItem(key);
+    await deleteChunkKeysInRange(key, chunks.length);
     return false;
   }
 }
