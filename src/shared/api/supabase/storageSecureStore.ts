@@ -12,6 +12,12 @@ const SECURE_STORE_CHUNK_META_PREFIX = "__chunked__:";
 
 let secureStoreAvailabilityPromise: Promise<boolean> | null = null;
 
+export const __testing = {
+  resetSecureStoreAvailabilityCache() {
+    secureStoreAvailabilityPromise = null;
+  },
+};
+
 function estimateUtf8ByteSize(value: string): number {
   if (typeof TextEncoder !== "undefined") {
     return new TextEncoder().encode(value).length;
