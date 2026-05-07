@@ -73,6 +73,7 @@ export function AuthCredentialsSection({
         style={[styles.primaryButton, isSubmitting && styles.primaryButtonDisabled]}
         onPress={onPrimaryActionPress}
         disabled={isSubmitting}
+        testID={isSignUp ? "auth-sign-up-submit-button" : "auth-sign-in-submit-button"}
       >
         <AppText style={styles.primaryButtonText}>
           {isSubmitting

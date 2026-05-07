@@ -65,6 +65,18 @@ describe("resolveAuthRedirectUrl", () => {
     expect(mockGetSupabaseClient).not.toHaveBeenCalled();
   });
 
+  it("falls back to raw error message when redirect error cannot be URI-decoded", async () => {
+    const result = await resolveAuthRedirectUrl(
+      "habbittracker://auth-callback/?error_description=Bad%25ZZ+Format",
+    );
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Bad%ZZ Format",
+    });
+    expect(mockGetSupabaseClient).not.toHaveBeenCalled();
+  });
+
   it("restores session from access and refresh tokens", async () => {
     const result = await resolveAuthRedirectUrl(
       "habbittracker://auth-callback/#access_token=aaa&refresh_token=bbb",
@@ -103,6 +115,24 @@ describe("resolveAuthRedirectUrl", () => {
     expect(result).toEqual({ status: "success" });
   });
 
+  it("returns exchangeCodeForSession error when auth code exchange fails", async () => {
+    mockExchangeCodeForSession.mockResolvedValueOnce({
+      error: {
+        message: "Code exchange failed.",
+      },
+    });
+
+    const result = await resolveAuthRedirectUrl(
+      "habbittracker://auth-callback/?code=bad-code",
+    );
+
+    expect(mockExchangeCodeForSession).toHaveBeenCalledWith("bad-code");
+    expect(result).toEqual({
+      status: "error",
+      message: "Code exchange failed.",
+    });
+  });
+
   it("verifies otp when token_hash and valid type are present", async () => {
     const result = await resolveAuthRedirectUrl(
       "habbittracker://auth-callback/?token_hash=hash-123&type=magiclink",
@@ -113,6 +143,27 @@ describe("resolveAuthRedirectUrl", () => {
       token_hash: "hash-123",
     });
     expect(result).toEqual({ status: "success" });
+  });
+
+  it("returns verifyOtp error when otp verification fails", async () => {
+    mockVerifyOtp.mockResolvedValueOnce({
+      error: {
+        message: "OTP token is invalid.",
+      },
+    });
+
+    const result = await resolveAuthRedirectUrl(
+      "habbittracker://auth-callback/?token_hash=otp-bad&type=email",
+    );
+
+    expect(mockVerifyOtp).toHaveBeenCalledWith({
+      type: "email",
+      token_hash: "otp-bad",
+    });
+    expect(result).toEqual({
+      status: "error",
+      message: "OTP token is invalid.",
+    });
   });
 
   it("prefers query params over hash params when merging", async () => {

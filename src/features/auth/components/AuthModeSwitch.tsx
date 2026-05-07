@@ -22,7 +22,7 @@ export function AuthModeSwitch({
     return (
       <View style={styles.authSwitchRow}>
         <AppText style={styles.authSwitchText}>Already have an account?</AppText>
-        <Pressable onPress={onSwitchToSignIn}>
+        <Pressable onPress={onSwitchToSignIn} testID="auth-switch-to-sign-in-button">
           <AppText style={styles.authSwitchStrongAction}>Log In</AppText>
         </Pressable>
       </View>
@@ -32,7 +32,7 @@ export function AuthModeSwitch({
   return (
     <View style={styles.authSwitchRow}>
       <AppText style={styles.authSwitchText}>Don&apos;t have an account?</AppText>
-      <Pressable onPress={onSwitchToSignUp}>
+      <Pressable onPress={onSwitchToSignUp} testID="auth-switch-to-sign-up-button">
         <AppText style={styles.authSwitchAccentAction}>Sign up for free</AppText>
       </Pressable>
     </View>

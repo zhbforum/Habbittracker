@@ -34,6 +34,11 @@ export function SignUpForm({
     <Pressable
       style={styles.inputIconButton}
       onPress={onTogglePasswordVisibility}
+      accessibilityRole="button"
+      accessibilityLabel={
+        isPasswordVisible ? "Hide sign up password" : "Show sign up password"
+      }
+      testID="auth-sign-up-password-visibility-button"
       hitSlop={8}
     >
       {isPasswordVisible ? (
@@ -51,6 +56,7 @@ export function SignUpForm({
         value={values.fullName}
         onChangeText={onFullNameChange}
         placeholder="Enter your full name"
+        inputTestID="auth-sign-up-full-name-input"
         leftIcon={UserRound}
         autoCapitalize="words"
         autoComplete="name"
@@ -62,6 +68,7 @@ export function SignUpForm({
         value={values.email}
         onChangeText={onEmailChange}
         placeholder="example@email.com"
+        inputTestID="auth-sign-up-email-input"
         leftIcon={Mail}
         keyboardType="email-address"
         autoComplete="email"
@@ -73,6 +80,7 @@ export function SignUpForm({
         value={values.password}
         onChangeText={onPasswordChange}
         placeholder="Min. 8 characters"
+        inputTestID="auth-sign-up-password-input"
         leftIcon={Lock}
         secureTextEntry={!isPasswordVisible}
         autoComplete="new-password"
@@ -80,9 +88,16 @@ export function SignUpForm({
         rightAccessory={passwordRightAccessory}
       />
 
-      <Pressable style={styles.termsRow} onPress={onToggleAcceptedTerms}>
+      <Pressable
+        style={styles.termsRow}
+        onPress={onToggleAcceptedTerms}
+        testID="auth-sign-up-terms-checkbox"
+      >
         <View
-          style={[styles.termsCheckbox, values.acceptedTerms && styles.termsCheckboxActive]}
+          style={[
+            styles.termsCheckbox,
+            values.acceptedTerms && styles.termsCheckboxActive,
+          ]}
         >
           {values.acceptedTerms ? (
             <Check size={16} color={colors.textPrimary} strokeWidth={2.8} />
@@ -90,8 +105,9 @@ export function SignUpForm({
         </View>
 
         <AppText style={styles.termsText}>
-          I agree to the <AppText style={styles.termsLinkText}>Terms of Service</AppText>{" "}
-          and <AppText style={styles.termsLinkText}>Privacy Policy</AppText>.
+          I agree to the{" "}
+          <AppText style={styles.termsLinkText}>Terms of Service</AppText> and{" "}
+          <AppText style={styles.termsLinkText}>Privacy Policy</AppText>.
         </AppText>
       </Pressable>
     </>

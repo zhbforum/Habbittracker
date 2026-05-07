@@ -17,6 +17,7 @@ type AuthInputFieldProps = {
   value: string;
   onChangeText: (value: string) => void;
   placeholder: string;
+  inputTestID?: string;
   leftIcon?: LucideIcon;
   rightAccessory?: ReactNode;
   labelActionText?: string;
@@ -33,6 +34,7 @@ export function AuthInputField({
   value,
   onChangeText,
   placeholder,
+  inputTestID,
   leftIcon: LeftIcon,
   rightAccessory,
   labelActionText,
@@ -72,6 +74,7 @@ export function AuthInputField({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
+          testID={inputTestID}
           placeholderTextColor={colors.textPlaceholder}
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
