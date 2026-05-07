@@ -4,11 +4,13 @@ import { createHabit, createHabitGroup } from "@/test/fixtures/habits";
 import {
   callGroupsUpdater,
   callHabitsUpdater,
+  clearHabitReminderNotificationsMock,
   createArgs,
   deleteHabitForUserMock,
   removeHabitFromGroupsForUserMock,
   setHabitProgressForDateMock,
   showErrorToastMock,
+  showInfoToastMock,
   showSuccessToastMock,
   useHabitItemMutationActions,
 } from "../testUtils/useHabitItemMutationActionsTestSetup";
@@ -18,6 +20,7 @@ describe("useHabitItemMutationActions (delete and progress)", () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2026-05-10T12:00:00.000Z"));
+    clearHabitReminderNotificationsMock.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -65,6 +68,7 @@ describe("useHabitItemMutationActions (delete and progress)", () => {
 
     expect(args.editorState.clearHabitReferencesAfterDelete).toHaveBeenCalledWith("habit-1");
     expect(args.syncAchievements).toHaveBeenCalledTimes(1);
+    expect(clearHabitReminderNotificationsMock).toHaveBeenCalledWith("user-1", "habit-1");
     expect(showSuccessToastMock).toHaveBeenCalledWith(
       "Habit deleted",
       "Habit and its history were removed.",
@@ -82,5 +86,27 @@ describe("useHabitItemMutationActions (delete and progress)", () => {
 
     expect(args.setErrorMessage).toHaveBeenLastCalledWith("progress failed");
     expect(showErrorToastMock).toHaveBeenCalledWith("Unable to update progress", "progress failed");
+  });
+
+  it("keeps delete successful when reminder cleanup fails", async () => {
+    deleteHabitForUserMock.mockResolvedValue(undefined);
+    removeHabitFromGroupsForUserMock.mockResolvedValue(undefined);
+    clearHabitReminderNotificationsMock.mockRejectedValue(new Error("cleanup failed"));
+
+    const args = createArgs();
+    const { result } = renderHook(() => useHabitItemMutationActions(args));
+
+    await act(async () => {
+      await result.current.handleDeleteHabit("habit-1");
+    });
+
+    expect(showInfoToastMock).toHaveBeenCalledWith(
+      "Reminder cleanup skipped",
+      "cleanup failed",
+    );
+    expect(showSuccessToastMock).toHaveBeenCalledWith(
+      "Habit deleted",
+      "Habit and its history were removed.",
+    );
   });
 });

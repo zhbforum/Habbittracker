@@ -11,8 +11,12 @@ import { toDateKey } from "@entities/habit/model/date";
 import { clampGroupDailyGoal } from "@entities/habit/model/groupValidators";
 import { validateHabitForm } from "@entities/habit/model/validators";
 import { removeHabitFromGroupsForUser } from "@features/habits/services/habitGroupStorageService";
+import {
+  clearHabitReminderNotifications,
+  syncHabitReminderNotifications,
+} from "@features/habits/services/habitReminderNotifications";
 import { getErrorMessage } from "@shared/lib";
-import { showErrorToast, showSuccessToast } from "@shared/ui";
+import { showErrorToast, showInfoToast, showSuccessToast } from "@shared/ui";
 
 import type {
   HabitsMutationEditorState,
@@ -29,6 +33,19 @@ type UseHabitItemMutationActionsArgs = HabitsMutationSharedArgs & {
     | "clearHabitReferencesAfterDelete"
   >;
 };
+
+function handleReminderSyncResult(
+  status: Awaited<ReturnType<typeof syncHabitReminderNotifications>>,
+) {
+  if (status === "permission_denied") {
+    showInfoToast(
+      "Reminder disabled",
+      "Allow notifications in system settings to enable reminders.",
+    );
+  } else if (status === "invalid_time") {
+    showInfoToast("Reminder not scheduled", "Set reminder time in HH:mm format.");
+  }
+}
 
 export function useHabitItemMutationActions({
   userId,
@@ -56,6 +73,15 @@ export function useHabitItemMutationActions({
         const createdHabit = await createHabitForUser(userId, editorState.formValues);
         setHabits((currentHabits) => [createdHabit, ...currentHabits]);
         syncAchievements();
+        try {
+          const reminderStatus = await syncHabitReminderNotifications(createdHabit);
+          handleReminderSyncResult(reminderStatus);
+        } catch (reminderError) {
+          showInfoToast(
+            "Reminder not scheduled",
+            getErrorMessage(reminderError, "Unable to schedule reminder notifications."),
+          );
+        }
         showSuccessToast("Habit created", "Your new habit is ready to track.");
       } else if (editorState.editingHabitId) {
         const updatedHabit = await updateHabitForUser(
@@ -67,6 +93,15 @@ export function useHabitItemMutationActions({
           currentHabits.map((habit) => (habit.id === updatedHabit.id ? updatedHabit : habit)),
         );
         syncAchievements();
+        try {
+          const reminderStatus = await syncHabitReminderNotifications(updatedHabit);
+          handleReminderSyncResult(reminderStatus);
+        } catch (reminderError) {
+          showInfoToast(
+            "Reminder not scheduled",
+            getErrorMessage(reminderError, "Unable to schedule reminder notifications."),
+          );
+        }
         showSuccessToast("Habit updated", "Changes have been saved.");
       }
 
@@ -146,6 +181,14 @@ export function useHabitItemMutationActions({
 
         editorState.clearHabitReferencesAfterDelete(habitId);
         syncAchievements();
+        try {
+          await clearHabitReminderNotifications(userId, habitId);
+        } catch (reminderError) {
+          showInfoToast(
+            "Reminder cleanup skipped",
+            getErrorMessage(reminderError, "Unable to clear reminder notifications."),
+          );
+        }
         showSuccessToast("Habit deleted", "Habit and its history were removed.");
       } catch (error) {
         const message = getErrorMessage(error, "Unable to delete habit.");

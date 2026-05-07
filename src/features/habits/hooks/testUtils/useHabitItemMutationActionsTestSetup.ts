@@ -10,7 +10,11 @@ import {
 import type { Habit, HabitGroup } from "@entities/habit/model/types";
 import { createHabitFormValues } from "@/test/fixtures/habits";
 import { removeHabitFromGroupsForUser } from "@features/habits/services/habitGroupStorageService";
-import { showErrorToast, showSuccessToast } from "@shared/ui";
+import {
+  clearHabitReminderNotifications,
+  syncHabitReminderNotifications,
+} from "@features/habits/services/habitReminderNotifications";
+import { showErrorToast, showInfoToast, showSuccessToast } from "@shared/ui";
 
 import { useHabitItemMutationActions } from "../useHabitItemMutationActions";
 
@@ -26,8 +30,14 @@ jest.mock("@features/habits/services/habitGroupStorageService", () => ({
   removeHabitFromGroupsForUser: jest.fn(),
 }));
 
+jest.mock("@features/habits/services/habitReminderNotifications", () => ({
+  clearHabitReminderNotifications: jest.fn(),
+  syncHabitReminderNotifications: jest.fn(),
+}));
+
 jest.mock("@shared/ui", () => ({
   showErrorToast: jest.fn(),
+  showInfoToast: jest.fn(),
   showSuccessToast: jest.fn(),
 }));
 
@@ -43,7 +53,12 @@ export const setHabitProgressForDateMock =
   setHabitProgressForDate as jest.MockedFunction<typeof setHabitProgressForDate>;
 export const removeHabitFromGroupsForUserMock =
   removeHabitFromGroupsForUser as jest.MockedFunction<typeof removeHabitFromGroupsForUser>;
+export const syncHabitReminderNotificationsMock =
+  syncHabitReminderNotifications as jest.MockedFunction<typeof syncHabitReminderNotifications>;
+export const clearHabitReminderNotificationsMock =
+  clearHabitReminderNotifications as jest.MockedFunction<typeof clearHabitReminderNotifications>;
 export const showErrorToastMock = showErrorToast as jest.MockedFunction<typeof showErrorToast>;
+export const showInfoToastMock = showInfoToast as jest.MockedFunction<typeof showInfoToast>;
 export const showSuccessToastMock = showSuccessToast as jest.MockedFunction<typeof showSuccessToast>;
 
 export type UseHabitItemMutationActionsArgs = Parameters<typeof useHabitItemMutationActions>[0];

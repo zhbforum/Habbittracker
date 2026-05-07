@@ -71,6 +71,7 @@ describe("habit presenters", () => {
   it("formats reminder label into user-friendly time", () => {
     expect(getReminderLabel(createHabit({ reminderTime: "08:05" }))).toBe("8:05 AM");
     expect(getReminderLabel(createHabit({ reminderTime: "20:30" }))).toBe("8:30 PM");
+    expect(getReminderLabel(createHabit({ reminderTime: "" }))).toBe("Off");
   });
 
   it("returns action labels based on goal metric, kind and completion state", () => {

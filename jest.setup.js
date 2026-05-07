@@ -47,6 +47,19 @@ jest.mock("expo-image-picker", () => ({
   },
 }));
 
+jest.mock("expo-notifications", () => ({
+  getPermissionsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(),
+  setNotificationChannelAsync: jest.fn(),
+  getAllScheduledNotificationsAsync: jest.fn(),
+  cancelScheduledNotificationAsync: jest.fn(),
+  scheduleNotificationAsync: jest.fn(),
+  AndroidImportance: {
+    DEFAULT: 5,
+    HIGH: 6,
+  },
+}));
+
 jest.mock("expo-font", () => ({
   ...jest.requireActual("expo-font"),
   isLoaded: jest.fn(() => true),
