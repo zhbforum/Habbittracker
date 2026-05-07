@@ -1,9 +1,5 @@
 import { Animated, Pressable, View } from "react-native";
-import {
-  CalendarCheck2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react-native";
+import { CalendarCheck2, ChevronLeft, ChevronRight } from "lucide-react-native";
 
 import type { StatsCalendarCell } from "@features/stats/model/types";
 import { getIntensityColor } from "@features/stats/model/view";
@@ -44,20 +40,48 @@ export function StatsCalendarSection({
   return (
     <View style={styles.calendarCard}>
       <View style={styles.calendarHeader}>
-        <Pressable style={styles.monthNavButton} onPress={onGoToPreviousMonth}>
-          <ChevronLeft size={18} color={colors.textSecondary} strokeWidth={2.4} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Go to previous month"
+          style={styles.monthNavButton}
+          onPress={onGoToPreviousMonth}
+        >
+          <ChevronLeft
+            size={18}
+            color={colors.textSecondary}
+            strokeWidth={2.4}
+          />
         </Pressable>
 
         <View style={styles.monthLabelWrap}>
           <AppText style={styles.monthTitle}>{monthLabel}</AppText>
-          <Pressable style={styles.todayButton} onPress={onJumpToToday}>
-            <CalendarCheck2 size={13} color={colors.accentText} strokeWidth={2.3} />
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Jump to today"
+            style={styles.todayButton}
+            onPress={onJumpToToday}
+          >
+            <CalendarCheck2
+              size={13}
+              color={colors.accentText}
+              strokeWidth={2.3}
+            />
             <AppText style={styles.todayButtonText}>Today</AppText>
           </Pressable>
         </View>
 
-        <Pressable style={styles.monthNavButton} onPress={onGoToNextMonth}>
-          <ChevronRight size={18} color={colors.textSecondary} strokeWidth={2.4} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Go to next month"
+          style={styles.monthNavButton}
+          onPress={onGoToNextMonth}
+        >
+          <ChevronRight
+            size={18}
+            color={colors.textSecondary}
+            strokeWidth={2.4}
+          />
         </Pressable>
       </View>
 
@@ -79,6 +103,9 @@ export function StatsCalendarSection({
                 return (
                   <Pressable
                     key={cell.dateKey}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select ${cell.dateKey}`}
+                    accessibilityState={{ selected: isSelected }}
                     style={[
                       styles.dayCell,
                       !cell.isCurrentMonth && styles.dayCellOutsideMonth,
@@ -109,10 +136,12 @@ export function StatsCalendarSection({
                           },
                         ]}
                       />
+
                       <View
                         style={[
                           styles.dayMarkRing,
-                          cell.completedGroupsCount > 0 && styles.dayMarkRingDone,
+                          cell.completedGroupsCount > 0 &&
+                            styles.dayMarkRingDone,
                         ]}
                       />
                     </View>
@@ -133,6 +162,7 @@ export function StatsCalendarSection({
             />
             <AppText style={styles.legendText}>Habit completion</AppText>
           </View>
+
           <View style={styles.legendItem}>
             <View style={[styles.dayMarkRing, styles.dayMarkRingDone]} />
             <AppText style={styles.legendText}>Group goal reached</AppText>
