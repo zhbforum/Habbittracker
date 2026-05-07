@@ -1,7 +1,7 @@
 # Habbittracker
 
 [![CI Passed](https://github.com/zhbforum/Habbittracker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zhbforum/Habbittracker/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-97.11%25-brightgreen)](#quality-and-testing-en)
+[![codecov](https://codecov.io/gh/zhbforum/Habittracker/graph/badge.svg?token=LQYAI7COLK)](https://codecov.io/gh/zhbforum/Habittracker)
 [![Tests](https://img.shields.io/badge/tests-748%20passed-success)](#quality-and-testing-en)
 [![Expo](https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo)](https://expo.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -134,11 +134,13 @@ bun run android
 
 <a id="quality-and-testing-en"></a>
 ### Quality and Testing
-Latest local coverage run (May 7, 2026):
+Latest local Jest coverage run (May 7, 2026):
 - Statements: `97.12%` (`3580/3686`)
 - Branches: `90.79%` (`1913/2107`)
 - Functions: `97.73%` (`1037/1061`)
 - Lines: `97.11%` (`3471/3574`)
+
+Codecov may display a slightly lower project coverage because it treats partially covered lines as not fully covered.
 
 Automated test status:
 - Test suites: `178 passed`
@@ -291,11 +293,13 @@ bun run android
 
 <a id="quality-and-testing-uk"></a>
 ### Якість і тестування
-Останній локальний запуск покриття (7 травня 2026):
+Останній локальний запуск Jest coverage (7 травня 2026):
 - Statements: `97.12%` (`3580/3686`)
 - Branches: `90.79%` (`1913/2107`)
 - Functions: `97.73%` (`1037/1061`)
 - Lines: `97.11%` (`3471/3574`)
+
+Codecov може показувати трохи нижче загальне покриття, оскільки частково покриті рядки не рахуються як повністю покриті.
 
 Статус автоматизованих тестів:
 - Test suites: `178 passed`
@@ -448,11 +452,13 @@ bun run android
 
 <a id="quality-and-testing-ru"></a>
 ### Качество и тестирование
-Последний локальный запуск покрытия (7 мая 2026):
+Последний локальный запуск Jest coverage (7 мая 2026):
 - Statements: `97.12%` (`3580/3686`)
 - Branches: `90.79%` (`1913/2107`)
 - Functions: `97.73%` (`1037/1061`)
 - Lines: `97.11%` (`3471/3574`)
+
+Codecov может показывать немного ниже общее покрытие, потому что частично покрытые строки не считаются полностью покрытыми.
 
 Статус автотестов:
 - Test suites: `178 passed`
