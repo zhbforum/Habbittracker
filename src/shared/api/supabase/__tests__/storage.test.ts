@@ -91,6 +91,33 @@ describe("nativeSupabaseStorage", () => {
     });
   });
 
+  it("Given SecureStore miss and AsyncStorage read throws, When getItem is called, Then it returns null without migration", async () => {
+    const { getItem, setItemAsync, removeItem } = createStorageTestContext();
+
+    getItem.mockRejectedValueOnce(new Error("async read failed"));
+
+    await expect(nativeSupabaseStorage.getItem("token")).resolves.toBeNull();
+
+    await waitFor(() => {
+      expect(setItemAsync).not.toHaveBeenCalled();
+      expect(removeItem).not.toHaveBeenCalled();
+    });
+  });
+
+  it("Given migration write to SecureStore fails, When getItem reads AsyncStorage fallback, Then value is returned without removing AsyncStorage key", async () => {
+    const { getItem, setItemAsync, removeItem } = createStorageTestContext();
+
+    getItem.mockResolvedValueOnce("async-token");
+    setItemAsync.mockRejectedValueOnce(new Error("secure migration failed"));
+
+    await expect(nativeSupabaseStorage.getItem("token")).resolves.toBe("async-token");
+
+    await waitFor(() => {
+      expect(setItemAsync).toHaveBeenCalledWith("token", "async-token", expect.any(Object));
+      expect(removeItem).not.toHaveBeenCalled();
+    });
+  });
+
   it("Given SecureStore write failure, When setItem is called, Then it falls back to AsyncStorage and cleans secure key", async () => {
     const { setItemAsync, deleteItemAsync, setItem, secureStoreMemory } =
       createStorageTestContext({
@@ -106,6 +133,16 @@ describe("nativeSupabaseStorage", () => {
     expect(setItem).toHaveBeenCalledWith("token", "fallback-token");
     expect(deleteItemAsync).toHaveBeenCalledWith("token", expect.any(Object));
     expect(secureStoreMemory.has("token")).toBe(false);
+  });
+
+  it("Given SecureStore write succeeds, When setItem is called, Then it removes async fallback and does not write to AsyncStorage", async () => {
+    const { setItem, removeItem, secureStoreMemory } = createStorageTestContext();
+
+    await expect(nativeSupabaseStorage.setItem("token", "secure-token")).resolves.toBeUndefined();
+
+    expect(removeItem).toHaveBeenCalledWith("token");
+    expect(setItem).not.toHaveBeenCalled();
+    expect(secureStoreMemory.get("token")).toBe("secure-token");
   });
 
   it("Given removeItem is called, When both layers are healthy, Then SecureStore and AsyncStorage are cleared", async () => {
