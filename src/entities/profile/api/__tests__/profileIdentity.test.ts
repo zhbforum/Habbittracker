@@ -47,6 +47,17 @@ describe("profileIdentity", () => {
     ])("$name", ({ user, expected }) => {
       expect(resolveDisplayName(user)).toBe(expected);
     });
+
+    it("Given null metadata object, When resolving display name, Then it safely falls back to email prefix", () => {
+      const userWithNullMetadata = {
+        ...createSupabaseUser({
+          email: "nullmeta@example.com",
+        }),
+        user_metadata: null,
+      } as unknown as ReturnType<typeof createSupabaseUser>;
+
+      expect(resolveDisplayName(userWithNullMetadata)).toBe("nullmeta");
+    });
   });
 
   describe("resolveProviderAvatarUrl", () => {

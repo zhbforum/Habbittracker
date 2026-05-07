@@ -169,4 +169,25 @@ describe("useUserProfileScreenViewModel", () => {
     expect(controllerState.handleSignOut).toHaveBeenCalledTimes(1);
     expect(result.current.isSignOutDialogOpen).toBe(false);
   });
+
+  it("closes sign-out dialog without triggering sign-out", () => {
+    const controllerState = createProfileControllerState();
+    useProfileScreenControllerMock.mockReturnValue(controllerState);
+
+    const { result } = renderHook(() =>
+      useUserProfileScreenViewModel({ user: createSupabaseUser({ id: "user-close-dialog" }) }),
+    );
+
+    act(() => {
+      result.current.handleOpenSignOutDialog();
+    });
+    expect(result.current.isSignOutDialogOpen).toBe(true);
+
+    act(() => {
+      result.current.closeSignOutDialog();
+    });
+
+    expect(result.current.isSignOutDialogOpen).toBe(false);
+    expect(controllerState.handleSignOut).not.toHaveBeenCalled();
+  });
 });

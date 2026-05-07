@@ -171,6 +171,23 @@ describe("profileStats", () => {
     expect(supabase.fallbackStreakEq).not.toHaveBeenCalled();
   });
 
+  it("Given both streak column candidates are unavailable, When fetching stats, Then current streak falls back to zero", async () => {
+    const supabase = createStatsSupabaseMock({
+      totalHabitsResult: { count: 7, error: null },
+      currentStreakResult: { data: null, error: { message: "current_streak missing" } },
+      fallbackStreakResult: { data: { streak: "N/A" }, error: null },
+    });
+
+    const result = await fetchPublicUserStats("user-3b");
+
+    expect(result).toEqual({
+      totalHabits: 7,
+      currentStreak: 0,
+    });
+    expect(supabase.currentStreakEq).toHaveBeenCalledWith("user_id", "user-3b");
+    expect(supabase.fallbackStreakEq).toHaveBeenCalledWith("user_id", "user-3b");
+  });
+
   it("Given total habits query returns error, When fetching public stats, Then total habits falls back to zero", async () => {
     const supabase = createStatsSupabaseMock({
       totalHabitsResult: { count: null, error: { message: "count failed" } },
