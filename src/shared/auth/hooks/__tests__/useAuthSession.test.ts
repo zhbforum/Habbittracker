@@ -112,6 +112,21 @@ describe("useAuthSession", () => {
     expect(result.current.isAuthenticated).toBe(false);
   });
 
+  it("Given getSession rejects, When hook initializes, Then it recovers with unauthenticated non-loading state", async () => {
+    getSession.mockRejectedValueOnce(new Error("getSession failed"));
+
+    const { result } = renderHook(() => useAuthSession());
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(onAuthStateChange).toHaveBeenCalledTimes(1);
+    expect(result.current.session).toBeNull();
+    expect(result.current.user).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
   it("Given auth state changes after mount, When callback receives session updates, Then it updates authentication state", async () => {
     const { result } = renderHook(() => useAuthSession());
 
