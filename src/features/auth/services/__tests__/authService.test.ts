@@ -235,6 +235,20 @@ describe("authService", () => {
     });
   });
 
+  it("returns oauth fallback message when provider does not return url and error is missing", async () => {
+    mockSignInWithOAuth.mockResolvedValue({
+      data: { url: null },
+      error: null,
+    });
+
+    const result = await loginWithGoogleOAuth();
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Unable to start Google sign-in.",
+    });
+  });
+
   it("returns cancelled message when user closes oauth flow", async () => {
     mockSignInWithOAuth.mockResolvedValue({
       data: { url: "https://example.com/oauth" },
@@ -320,6 +334,39 @@ describe("authService", () => {
     expect(result).toEqual({
       status: "pending",
       message: "Continue sign-in in browser and return to the app.",
+    });
+  });
+
+  it("returns pending when browser session stays open and app has no callback yet", async () => {
+    mockSignInWithOAuth.mockResolvedValue({
+      data: { url: "https://example.com/oauth" },
+      error: null,
+    });
+    mockOpenAuthSessionAsync.mockResolvedValue({
+      type: "opened",
+    } as never);
+
+    const result = await loginWithGoogleOAuth();
+
+    expect(mockResolveAuthRedirectUrl).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      status: "pending",
+      message: "Continue sign-in in browser and return to the app.",
+    });
+  });
+
+  it("returns readable oauth error when browser session throws", async () => {
+    mockSignInWithOAuth.mockResolvedValue({
+      data: { url: "https://example.com/oauth" },
+      error: null,
+    });
+    mockOpenAuthSessionAsync.mockRejectedValueOnce(new Error("browser unavailable"));
+
+    const result = await loginWithGoogleOAuth();
+
+    expect(result).toEqual({
+      status: "error",
+      message: "browser unavailable",
     });
   });
 });

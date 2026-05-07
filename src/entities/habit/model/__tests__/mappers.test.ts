@@ -50,6 +50,16 @@ describe("habit mappers", () => {
     });
   });
 
+  it("keeps reminder disabled when form reminder value is empty", () => {
+    const normalized = normalizeHabitFormValues({
+      ...DEFAULT_HABIT_FORM_VALUES,
+      name: "Read books",
+      reminderTime: "",
+    });
+
+    expect(normalized.reminderTime).toBe("");
+  });
+
   it("returns null when storage dto is not an object or has no valid id", () => {
     expect(mapHabitStorageDtoToHabit(null, "fallback-user")).toBeNull();
     expect(mapHabitStorageDtoToHabit({}, "fallback-user")).toBeNull();
@@ -130,6 +140,19 @@ describe("habit mappers", () => {
         },
       },
     });
+  });
+
+  it("preserves disabled reminder from storage dto", () => {
+    const habit = mapHabitStorageDtoToHabit(
+      {
+        id: "habit-off",
+        name: "Digital sunset",
+        reminderTime: "   ",
+      },
+      "fallback-user",
+    );
+
+    expect(habit?.reminderTime).toBe("");
   });
 
   it("parses goal from legacy dto fields when nested goal is absent", () => {

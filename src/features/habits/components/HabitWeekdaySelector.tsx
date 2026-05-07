@@ -27,6 +27,7 @@ export function HabitWeekdaySelector({
         return (
           <Pressable
             key={weekday}
+            testID={`habit-weekday-${weekday}`}
             style={[styles.weekdayButton, isSelected && styles.weekdayButtonActive]}
             onPress={() => onToggleWeekday(weekday)}
           >

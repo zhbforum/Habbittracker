@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
 import {
   __testing,
@@ -52,6 +53,26 @@ function createSecureStoreMemory(store: SecureMap): {
     setItemAsync,
     deleteItemAsync,
     isAvailableAsync,
+  };
+}
+
+function overridePlatformOs(nextOs: string): () => void {
+  const platformRecord = Platform as unknown as Record<string, unknown>;
+  const previousDescriptor = Object.getOwnPropertyDescriptor(platformRecord, "OS");
+
+  Object.defineProperty(platformRecord, "OS", {
+    configurable: true,
+    writable: true,
+    value: nextOs,
+  });
+
+  return () => {
+    if (previousDescriptor) {
+      Object.defineProperty(platformRecord, "OS", previousDescriptor);
+      return;
+    }
+
+    delete platformRecord.OS;
   };
 }
 
@@ -163,5 +184,105 @@ describe("storageSecureStore", () => {
       .filter((deletedKey) => deletedKey.startsWith(`${key}.__chunk.`));
 
     expect(deletedChunkKeys.length).toBeGreaterThan(0);
+  });
+
+  it("Given web platform, When interacting with secure storage, Then it short-circuits without native store calls", async () => {
+    const restorePlatform = overridePlatformOs("web");
+    const secureStoreMemory = new Map<string, string>();
+    const { getItemAsync, setItemAsync, deleteItemAsync, isAvailableAsync } =
+      createSecureStoreMemory(secureStoreMemory);
+
+    try {
+      await expect(writeSecureStoreItem("session.web", "token")).resolves.toBe(false);
+      await expect(readSecureStoreItem("session.web")).resolves.toBeNull();
+      await expect(deleteSecureStoreItem("session.web")).resolves.toBeUndefined();
+    } finally {
+      restorePlatform();
+    }
+
+    expect(isAvailableAsync).not.toHaveBeenCalled();
+    expect(getItemAsync).not.toHaveBeenCalled();
+    expect(setItemAsync).not.toHaveBeenCalled();
+    expect(deleteItemAsync).not.toHaveBeenCalled();
+  });
+
+  it("Given availability check rejects, When reading and writing repeatedly, Then it caches false result until cache reset", async () => {
+    const secureStoreMemory = new Map<string, string>();
+    const { isAvailableAsync, setItemAsync } = createSecureStoreMemory(secureStoreMemory);
+    isAvailableAsync.mockRejectedValueOnce(new Error("availability failed"));
+
+    await expect(writeSecureStoreItem("session.cache", "value")).resolves.toBe(false);
+    await expect(readSecureStoreItem("session.cache")).resolves.toBeNull();
+    await expect(deleteSecureStoreItem("session.cache")).resolves.toBeUndefined();
+
+    expect(isAvailableAsync).toHaveBeenCalledTimes(1);
+    expect(setItemAsync).not.toHaveBeenCalled();
+
+    __testing.resetSecureStoreAvailabilityCache();
+    isAvailableAsync.mockResolvedValueOnce(true);
+
+    await expect(writeSecureStoreItem("session.cache", "value")).resolves.toBe(true);
+    expect(isAvailableAsync).toHaveBeenCalledTimes(2);
+    expect(setItemAsync).toHaveBeenCalledWith("session.cache", "value", expect.any(Object));
+  });
+
+  it("Given TextEncoder is unavailable, When writing unicode-heavy payload, Then byte-size fallback still chunks and restores value", async () => {
+    const secureStoreMemory = new Map<string, string>();
+    const { setItemAsync } = createSecureStoreMemory(secureStoreMemory);
+    const globalRecord = globalThis as unknown as {
+      TextEncoder?: typeof TextEncoder;
+    };
+    const originalTextEncoder = globalRecord.TextEncoder;
+
+    globalRecord.TextEncoder = undefined;
+
+    try {
+      const key = "session.byte-fallback";
+      const value = "aéअ😀".repeat(400);
+
+      await expect(writeSecureStoreItem(key, value)).resolves.toBe(true);
+      await expect(readSecureStoreItem(key)).resolves.toBe(value);
+
+      const chunkWrites = setItemAsync.mock.calls.filter(([writtenKey]) =>
+        writtenKey.startsWith(`${key}.__chunk.`),
+      );
+
+      expect(chunkWrites.length).toBeGreaterThan(1);
+      expect(secureStoreMemory.get(key)?.startsWith("__chunked__:")).toBe(true);
+    } finally {
+      if (originalTextEncoder) {
+        globalRecord.TextEncoder = originalTextEncoder;
+      } else {
+        delete globalRecord.TextEncoder;
+      }
+    }
+  });
+
+  it("Given invalid chunk metadata value, When reading, Then it returns raw value without chunk reads", async () => {
+    const secureStoreMemory = new Map<string, string>();
+    const { getItemAsync } = createSecureStoreMemory(secureStoreMemory);
+
+    secureStoreMemory.set("session.invalid-meta", "__chunked__:0");
+
+    await expect(readSecureStoreItem("session.invalid-meta")).resolves.toBe("__chunked__:0");
+    expect(getItemAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it("Given native read throws, When reading secure value, Then it returns null", async () => {
+    const secureStoreMemory = new Map<string, string>();
+    const { getItemAsync } = createSecureStoreMemory(secureStoreMemory);
+
+    getItemAsync.mockRejectedValueOnce(new Error("read failed"));
+
+    await expect(readSecureStoreItem("session.read-fail")).resolves.toBeNull();
+  });
+
+  it("Given native delete path throws, When deleting secure value, Then it resolves without throwing", async () => {
+    const secureStoreMemory = new Map<string, string>();
+    const { getItemAsync } = createSecureStoreMemory(secureStoreMemory);
+
+    getItemAsync.mockRejectedValueOnce(new Error("delete failed"));
+
+    await expect(deleteSecureStoreItem("session.delete-fail")).resolves.toBeUndefined();
   });
 });

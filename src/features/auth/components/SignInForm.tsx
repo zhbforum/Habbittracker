@@ -27,6 +27,11 @@ export function SignInForm({
     <Pressable
       style={styles.inputIconButton}
       onPress={onTogglePasswordVisibility}
+      accessibilityRole="button"
+      accessibilityLabel={
+        isPasswordVisible ? "Hide sign in password" : "Show sign in password"
+      }
+      testID="auth-sign-in-password-visibility-button"
       hitSlop={8}
     >
       {isPasswordVisible ? (
@@ -44,6 +49,7 @@ export function SignInForm({
         value={values.email}
         onChangeText={onEmailChange}
         placeholder="name@example.com"
+        inputTestID="auth-sign-in-email-input"
         keyboardType="email-address"
         autoComplete="email"
         textContentType="emailAddress"
@@ -54,6 +60,7 @@ export function SignInForm({
         value={values.password}
         onChangeText={onPasswordChange}
         placeholder="Enter your password"
+        inputTestID="auth-sign-in-password-input"
         secureTextEntry={!isPasswordVisible}
         autoComplete="current-password"
         textContentType="password"

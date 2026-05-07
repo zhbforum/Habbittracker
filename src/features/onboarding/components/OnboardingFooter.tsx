@@ -32,7 +32,11 @@ export function OnboardingFooter({
 
   return (
     <View style={styles.bottomSection}>
-      <Pressable style={styles.primaryButton} onPress={onPrimaryPress}>
+      <Pressable
+        style={styles.primaryButton}
+        onPress={onPrimaryPress}
+        testID="onboarding-primary-action-button"
+      >
         <View style={styles.primaryButtonContent}>
           <AppText style={styles.primaryButtonText}>{primaryAction.label}</AppText>
           {primaryAction.showArrow && (
@@ -51,6 +55,7 @@ export function OnboardingFooter({
         <Pressable
           style={styles.secondaryActionButton}
           onPress={onSecondaryActionPress}
+          testID="onboarding-secondary-action-button"
         >
           <AppText style={styles.secondaryActionText}>{secondaryAction.label}</AppText>
         </Pressable>

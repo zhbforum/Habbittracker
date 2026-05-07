@@ -7,7 +7,9 @@ import {
   createArgs,
   createHabitForUserMock,
   showErrorToastMock,
+  showInfoToastMock,
   showSuccessToastMock,
+  syncHabitReminderNotificationsMock,
   toggleHabitCompletionForDateMock,
   updateHabitForUserMock,
   useHabitItemMutationActions,
@@ -18,6 +20,7 @@ describe("useHabitItemMutationActions (save and toggle)", () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2026-05-10T12:00:00.000Z"));
+    syncHabitReminderNotificationsMock.mockResolvedValue("scheduled");
   });
 
   afterEach(() => {
@@ -52,6 +55,7 @@ describe("useHabitItemMutationActions (save and toggle)", () => {
   it("creates habit successfully", async () => {
     const createdHabit = createHabit("habit-new", { name: "Created" });
     createHabitForUserMock.mockResolvedValue(createdHabit);
+    syncHabitReminderNotificationsMock.mockResolvedValue("scheduled");
     const args = createArgs();
     const { result } = renderHook(() => useHabitItemMutationActions(args));
 
@@ -66,6 +70,7 @@ describe("useHabitItemMutationActions (save and toggle)", () => {
     expect(args.setErrorMessage).toHaveBeenNthCalledWith(1, null);
     expect(args.editorState.finalizeHabitSave).toHaveBeenCalledTimes(1);
     expect(args.syncAchievements).toHaveBeenCalledTimes(1);
+    expect(syncHabitReminderNotificationsMock).toHaveBeenCalledWith(createdHabit);
     expect(showSuccessToastMock).toHaveBeenCalledWith(
       "Habit created",
       "Your new habit is ready to track.",
@@ -79,6 +84,7 @@ describe("useHabitItemMutationActions (save and toggle)", () => {
   it("updates habit successfully in edit mode", async () => {
     const updatedHabit = createHabit("habit-1", { name: "Updated" });
     updateHabitForUserMock.mockResolvedValue(updatedHabit);
+    syncHabitReminderNotificationsMock.mockResolvedValue("scheduled");
     const args = createArgs({
       editorState: {
         formValues: createHabitFormValues({ name: "Edit form" }),
@@ -106,7 +112,52 @@ describe("useHabitItemMutationActions (save and toggle)", () => {
         createHabit("habit-2", { name: "Other" }),
       ]),
     ).toEqual([updatedHabit, createHabit("habit-2", { name: "Other" })]);
+    expect(syncHabitReminderNotificationsMock).toHaveBeenCalledWith(updatedHabit);
     expect(showSuccessToastMock).toHaveBeenCalledWith("Habit updated", "Changes have been saved.");
+  });
+
+  it("shows info toast when reminder permission is denied after successful save", async () => {
+    const createdHabit = createHabit("habit-reminder-off", { reminderTime: "09:30" });
+    createHabitForUserMock.mockResolvedValue(createdHabit);
+    syncHabitReminderNotificationsMock.mockResolvedValue("permission_denied");
+    const args = createArgs();
+    const { result } = renderHook(() => useHabitItemMutationActions(args));
+
+    await act(async () => {
+      await result.current.handleSaveHabit();
+    });
+
+    expect(showInfoToastMock).toHaveBeenCalledWith(
+      "Reminder disabled",
+      "Allow notifications in system settings to enable reminders.",
+    );
+    expect(showSuccessToastMock).toHaveBeenCalledWith(
+      "Habit created",
+      "Your new habit is ready to track.",
+    );
+  });
+
+  it("keeps save successful when reminder sync throws, and reports non-blocking info toast", async () => {
+    const createdHabit = createHabit("habit-reminder-error", { reminderTime: "09:30" });
+    createHabitForUserMock.mockResolvedValue(createdHabit);
+    syncHabitReminderNotificationsMock.mockRejectedValue(new Error("notifications unavailable"));
+    const args = createArgs();
+    const { result } = renderHook(() => useHabitItemMutationActions(args));
+
+    let isSuccess = false;
+    await act(async () => {
+      isSuccess = await result.current.handleSaveHabit();
+    });
+
+    expect(isSuccess).toBe(true);
+    expect(showInfoToastMock).toHaveBeenCalledWith(
+      "Reminder not scheduled",
+      "notifications unavailable",
+    );
+    expect(showSuccessToastMock).toHaveBeenCalledWith(
+      "Habit created",
+      "Your new habit is ready to track.",
+    );
   });
 
   it("handles save failure and returns false", async () => {

@@ -68,6 +68,14 @@
         {
           "photosPermission": "Allow Habbittracker to access your photos so you can choose a profile avatar."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/images/icon.png",
+          "color": "#2E8B57",
+          "defaultChannel": "habit-reminders"
+        }
       ]
     ],
     "experiments": {

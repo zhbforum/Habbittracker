@@ -178,6 +178,37 @@ describe("useHomeScreenData", () => {
     expect(result.current.displayName).toBe("Resolved User");
   });
 
+  it("continues loading habits when profile bundle request fails", async () => {
+    const user = createSupabaseUser({ id: "user-3b", email: "recover@example.com" });
+    const syncAchievements = jest.fn();
+    resolveDisplayNameMock.mockReturnValueOnce("Recovered User");
+
+    fetchHabitsForUserMock.mockResolvedValueOnce([createHabit("h-recover")]);
+    fetchHabitGroupsForUserMock.mockResolvedValueOnce([createHabitGroup("g-recover")]);
+    fetchCurrentUserProfileBundleMock.mockRejectedValueOnce(new Error("profile unavailable"));
+
+    const { result } = renderHook(() =>
+      useHomeScreenData({
+        user,
+        initialDisplayName: " ",
+        syncAchievements,
+      }),
+    );
+
+    triggerFocusEffect();
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.errorMessage).toBeNull();
+    expect(result.current.displayName).toBe("Recovered User");
+    expect(result.current.habits).toEqual([createHabit("h-recover")]);
+    expect(result.current.groups).toEqual([createHabitGroup("g-recover")]);
+    expect(syncAchievements).toHaveBeenCalledTimes(1);
+    expect(showErrorToastMock).not.toHaveBeenCalled();
+  });
+
   it("sets error state and shows toast when load fails", async () => {
     const user = createSupabaseUser({ id: "user-4" });
     const syncAchievements = jest.fn();

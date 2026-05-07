@@ -30,6 +30,10 @@ export function validateHabitName(value: string): string | null {
 }
 
 export function validateReminderTime(value: string): string | null {
+  if (!value.trim()) {
+    return null;
+  }
+
   const normalized = normalizeTime(value);
 
   if (!normalized) {

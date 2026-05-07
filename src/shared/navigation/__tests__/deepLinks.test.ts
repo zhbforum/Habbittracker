@@ -64,6 +64,12 @@ describe("deepLinks", () => {
     expect(deepLinksFallback.getAuthCallbackUrl()).toBe("habbittracker://auth-callback/");
   });
 
+  it("uses default app scheme when config scheme is missing", async () => {
+    const deepLinks = await loadDeepLinks();
+
+    expect(deepLinks.getAuthCallbackUrl()).toBe("habbittracker://auth-callback/");
+  });
+
   it("recognizes auth callback urls for host and legacy path", async () => {
     const deepLinks = await loadDeepLinks({
       scheme: ["habbittracker", "backup"],
@@ -88,6 +94,19 @@ describe("deepLinks", () => {
       parseImpl: () => {
         throw new Error("parse failed");
       },
+    });
+
+    expect(deepLinks.isAuthCallbackUrl("habbittracker://auth-callback/")).toBe(false);
+  });
+
+  it("returns false when parsed callback url does not include a scheme", async () => {
+    const deepLinks = await loadDeepLinks({
+      scheme: "habbittracker",
+      parseImpl: () => ({
+        scheme: "   ",
+        hostname: "auth-callback",
+        path: "",
+      }),
     });
 
     expect(deepLinks.isAuthCallbackUrl("habbittracker://auth-callback/")).toBe(false);

@@ -24,6 +24,10 @@ export function getFrequencyLabel(habit: Habit): string {
 }
 
 export function getReminderLabel(habit: Habit): string {
+  if (!habit.reminderTime.trim()) {
+    return "Off";
+  }
+
   return formatTimeLabel(habit.reminderTime);
 }
 

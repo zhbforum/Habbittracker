@@ -47,6 +47,7 @@ export function HabitGroupEditorGoalSection({
         <AppText style={styles.fieldLabel}>Daily goal</AppText>
         <View style={styles.goalRow}>
           <Pressable
+            testID="group-goal-decrease"
             style={styles.goalStepButton}
             onPress={() => onFieldChange("dailyGoal", clampGoal(resolvedGoal - 1, selectedCount))}
             disabled={resolvedGoal <= 1}
@@ -60,6 +61,7 @@ export function HabitGroupEditorGoalSection({
           </View>
 
           <Pressable
+            testID="group-goal-increase"
             style={[styles.goalStepButton, selectedCount === 0 && styles.disabledButton]}
             onPress={() => onFieldChange("dailyGoal", clampGoal(resolvedGoal + 1, selectedCount))}
             disabled={resolvedGoal >= maxGoal || selectedCount === 0}

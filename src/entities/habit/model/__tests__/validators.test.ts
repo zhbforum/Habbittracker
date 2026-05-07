@@ -27,6 +27,7 @@ describe("habit validators", () => {
   });
 
   it("validates reminder time format", () => {
+    expect(validateReminderTime("")).toBeNull();
     expect(validateReminderTime("25:00")).toBe(
       "Reminder time should be in HH:mm format, for example 20:30.",
     );

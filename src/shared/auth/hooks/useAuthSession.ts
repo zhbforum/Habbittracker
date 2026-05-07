@@ -25,6 +25,12 @@ export function useAuthSession() {
         session: data.session,
         user: data.session?.user ?? null,
       });
+    }).catch(() => {
+      setState({
+        isLoading: false,
+        session: null,
+        user: null,
+      });
     });
 
     const {

@@ -98,6 +98,11 @@ export function normalizeHabitFormValues(values: HabitFormValues): HabitFormValu
     target: values.goalTarget,
     unit: values.goalUnit,
   });
+  const normalizedReminderInput = values.reminderTime.trim();
+  const normalizedReminderTime =
+    normalizedReminderInput.length === 0
+      ? ""
+      : normalizeTime(normalizedReminderInput) || DEFAULT_HABIT_FORM_VALUES.reminderTime;
 
   return {
     ...values,
@@ -106,7 +111,7 @@ export function normalizeHabitFormValues(values: HabitFormValues): HabitFormValu
     frequency: isHabitFrequency(values.frequency)
       ? values.frequency
       : DEFAULT_HABIT_FORM_VALUES.frequency,
-    reminderTime: normalizeTime(values.reminderTime) || DEFAULT_HABIT_FORM_VALUES.reminderTime,
+    reminderTime: normalizedReminderTime,
     iconId: isHabitIconId(values.iconId) ? values.iconId : DEFAULT_HABIT_FORM_VALUES.iconId,
     iconColorId: isHabitIconColorId(values.iconColorId)
       ? values.iconColorId
@@ -149,6 +154,11 @@ export function mapHabitStorageDtoToHabit(
   }
 
   const normalizedCustomWeekdays = parseWeekdayList(raw.customWeekdays);
+  const rawReminderTime = typeof raw.reminderTime === "string" ? raw.reminderTime.trim() : "";
+  const normalizedReminderTime =
+    rawReminderTime.length === 0
+      ? ""
+      : normalizeTime(rawReminderTime) || DEFAULT_HABIT_FORM_VALUES.reminderTime;
   const nowIso = new Date().toISOString();
 
   return {
@@ -159,9 +169,7 @@ export function mapHabitStorageDtoToHabit(
     frequency: isHabitFrequency(raw.frequency)
       ? raw.frequency
       : DEFAULT_HABIT_FORM_VALUES.frequency,
-    reminderTime:
-      normalizeTime(toSafeString(raw.reminderTime) ?? "") ||
-      DEFAULT_HABIT_FORM_VALUES.reminderTime,
+    reminderTime: normalizedReminderTime,
     iconId: isHabitIconId(raw.iconId) ? raw.iconId : DEFAULT_HABIT_FORM_VALUES.iconId,
     iconColorId: isHabitIconColorId(raw.iconColorId)
       ? raw.iconColorId

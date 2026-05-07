@@ -32,6 +32,7 @@ export function OnboardingTopBar({
         <Pressable
           style={[styles.backButton, isBackButtonPlain && styles.backButtonPlain]}
           onPress={onBackPress}
+          testID="onboarding-back-button"
         >
           <ArrowLeft size={24} color={colors.textPrimary} strokeWidth={2.2} />
         </Pressable>
@@ -40,7 +41,11 @@ export function OnboardingTopBar({
       <View style={styles.topBarTitleSpacer} />
 
       {showSkip ? (
-        <Pressable style={styles.skipButton} onPress={onSkipPress}>
+        <Pressable
+          style={styles.skipButton}
+          onPress={onSkipPress}
+          testID="onboarding-skip-button"
+        >
           <AppText style={styles.skipText}>Skip</AppText>
         </Pressable>
       ) : (

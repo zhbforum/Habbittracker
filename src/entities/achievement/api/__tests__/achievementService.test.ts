@@ -192,4 +192,17 @@ describe("achievementService", () => {
     expect(result.summary.total).toBe(ACHIEVEMENT_DEFINITIONS.length);
     expect(result.summary.unlocked).toBe(1);
   });
+
+  it("returns safe public achievements summary when cloud ledger fetch fails", async () => {
+    fetchCloudLedgerForUserMock.mockRejectedValueOnce(new Error("cloud public unavailable"));
+
+    const result = await fetchPublicAchievementsForUser("public-user-fallback");
+
+    expect(fetchCloudLedgerForUserMock).toHaveBeenCalledWith("public-user-fallback");
+    expect(result.achievements).toEqual([]);
+    expect(result.summary).toEqual({
+      total: ACHIEVEMENT_DEFINITIONS.length,
+      unlocked: 0,
+    });
+  });
 });
