@@ -27,6 +27,7 @@ export function HabitIconColorPicker({
         return (
           <Pressable
             key={colorOption.id}
+            testID={`habit-icon-color-${colorOption.id}`}
             style={[styles.colorButton, isSelected && styles.colorButtonActive]}
             onPress={() => onSelectColor(colorOption.id)}
           >

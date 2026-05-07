@@ -30,6 +30,7 @@ export function HabitIconPicker({
         return (
           <Pressable
             key={option.id}
+            testID={`habit-icon-${option.id}`}
             style={[styles.iconButton, isSelected && styles.iconButtonActive]}
             onPress={() => onSelectIcon(option.id)}
           >
