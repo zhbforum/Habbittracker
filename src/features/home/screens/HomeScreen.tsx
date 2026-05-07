@@ -60,7 +60,11 @@ export default function HomeScreen({ user }: HomeScreenProps) {
               </View>
             </View>
 
-            <HomeProgressCard styles={styles} colors={colors} progress={progress} />
+            <HomeProgressCard
+              styles={styles}
+              colors={colors}
+              progress={progress}
+            />
 
             <HomeGroupsSection
               styles={styles}
@@ -86,7 +90,12 @@ export default function HomeScreen({ user }: HomeScreenProps) {
             />
           </ScrollView>
 
-          <Pressable style={styles.fab} onPress={openCreateHabit}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Create habit"
+            style={styles.fab}
+            onPress={openCreateHabit}
+          >
             <Plus size={30} color={colors.textPrimary} strokeWidth={2.2} />
           </Pressable>
         </View>
@@ -96,4 +105,3 @@ export default function HomeScreen({ user }: HomeScreenProps) {
     </>
   );
 }
-
